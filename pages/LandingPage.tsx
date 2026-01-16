@@ -63,8 +63,7 @@ const LandingPage: React.FC = () => {
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
              <div className="flex items-center gap-4">
-                {/* Removed localhost link. In production, Admin is typically a separate deployment or route. */}
-                {/* Use a relative path assuming admin might be deployed at /admin or a placeholder */}
+                {/* Admin Link removed */}
              </div>
           </div>
         </div>
@@ -120,8 +119,8 @@ const LandingPage: React.FC = () => {
       {/* Main Content */}
       <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         
-        {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-16 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none">
+        {/* Controls - Fixed sticky top to match navbar height (16 = 4rem = 64px) */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-16 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none transition-all duration-200">
           
           {/* Categories */}
           <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar">
@@ -216,7 +215,7 @@ const LandingPage: React.FC = () => {
                     <div className="flex items-center gap-1.5 mt-0.5">
                        {minPrice > 0 ? (
                          <p className="text-[11px] text-gray-500 truncate group-hover:text-gray-400">
-                            Giá từ <span className="text-emerald-500 font-bold text-[13px]">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency}</span>
+                            Giá từ <span className="text-emerald-500 font-bold text-[13px]">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}</span>
                          </p>
                        ) : (
                          <p className="text-[11px] text-emerald-500 font-bold truncate">Liên hệ</p>
@@ -256,6 +255,7 @@ const LandingPage: React.FC = () => {
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
           siteConfig={config}
+          socials={socials} 
           onClose={() => setSelectedProduct(null)} 
         />
       )}
