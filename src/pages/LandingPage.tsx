@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { clientApi } from '../services/clientApi';
+import { clientApi } from '../services/clientApi'; // CHANGED: Use real API
 import { SiteConfig, Category, Product, SocialLink } from '../types';
-import { Search, AlertCircle, Sparkles } from 'lucide-react';
+import { Search, Filter, AlertCircle, Menu, X, Sparkles } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
@@ -62,9 +62,8 @@ const LandingPage: React.FC = () => {
                 <Logo className="h-9 w-9" />
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
-             {/* Hidden Admin Link Area */}
              <div className="flex items-center gap-4">
-                {/* Link to Admin removed for security by obscurity */}
+                {/* Admin Link removed for security */}
              </div>
           </div>
         </div>
@@ -256,7 +255,7 @@ const LandingPage: React.FC = () => {
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
           siteConfig={config}
-          socials={socials} 
+          socials={socials} // Pass socials data
           onClose={() => setSelectedProduct(null)} 
         />
       )}

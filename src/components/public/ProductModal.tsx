@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product, SiteConfig, SocialLink } from '../../types';
-import { X, CheckCircle2, Copy, MessageCircle, Info, ChevronUp, Maximize2 } from 'lucide-react';
+import { X, CheckCircle2, Copy, MessageCircle, Info, ChevronUp, Maximize2, ExternalLink } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
 import ReactMarkdown from 'react-markdown';
 
@@ -26,7 +26,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Fallback if no socials
+  // Fallback nếu không có social links nào
   const fallbackContactLink = siteConfig.contactInfo.email 
     ? `mailto:${siteConfig.contactInfo.email}?subject=Đặt hàng ${product.name}` 
     : '#';
@@ -117,23 +117,25 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                         </h3>
                         <button 
                           onClick={() => setShowFullDesc(true)}
-                          className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                          className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded"
                         >
-                          <Maximize2 size={12} /> Phóng to
+                          <Maximize2 size={12} /> Phóng to xem
                         </button>
                       </div>
                       
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 relative">
                          {/* Markdown Content Container with Scroll */}
-                         <div className="markdown-body text-gray-700 dark:text-gray-300 text-sm max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+                         <div className="markdown-body text-gray-700 dark:text-gray-300 text-sm max-h-[200px] overflow-hidden relative">
                             <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
+                            {/* Fade effect at bottom */}
+                            <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 dark:from-gray-900/80 to-transparent pointer-events-none"></div>
                          </div>
                          <div className="mt-2 text-center pt-2 border-t border-gray-200 dark:border-gray-700">
                             <button 
                               onClick={() => setShowFullDesc(true)}
-                              className="text-xs font-medium text-gray-500 hover:text-emerald-600 transition-colors"
+                              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 uppercase tracking-wide transition-colors"
                             >
-                              Nhấn để đọc toàn bộ...
+                              Đọc toàn bộ
                             </button>
                          </div>
                       </div>
@@ -152,36 +154,46 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
               {/* Actions Footer */}
               <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
                 <div className="flex flex-col sm:flex-row gap-3 relative">
-                  {/* Contact Menu Popover */}
+                  
+                  {/* Contact Menu Popover (The 3 Options) */}
                   {showContactMenu && (
-                    <div className="absolute bottom-full left-0 w-full sm:w-auto min-w-[240px] mb-3 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-emerald-100 dark:border-gray-700 overflow-hidden z-30 animate-in slide-in-from-bottom-2 fade-in duration-200">
-                      <div className="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-400 border-b border-emerald-100 dark:border-gray-700">
-                        Chọn kênh hỗ trợ:
+                    <div className="absolute bottom-[calc(100%+10px)] left-0 w-full sm:w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-30 animate-in slide-in-from-bottom-2 fade-in duration-200">
+                      <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                         <span className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Chọn kênh hỗ trợ</span>
+                         <button onClick={() => setShowContactMenu(false)}><X size={14} className="text-gray-400 hover:text-gray-600"/></button>
                       </div>
-                      <div className="p-1 max-h-60 overflow-y-auto">
+                      <div className="p-2 space-y-1">
                         {socials.map(social => (
                           <a 
                             key={social.id}
                             href={social.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-200 transition-colors"
+                            className="flex items-center justify-between px-4 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl text-gray-800 dark:text-gray-100 transition-colors group"
                           >
-                            <DynamicIcon name={social.iconName} size={18} className="text-emerald-600 dark:text-emerald-400"/>
-                            <span className="font-medium">{social.platform}</span>
+                            <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                                  <DynamicIcon name={social.iconName} size={16} />
+                               </div>
+                               <span className="font-semibold">{social.platform}</span>
+                            </div>
+                            <ExternalLink size={14} className="text-gray-400 group-hover:text-emerald-500"/>
                           </a>
                         ))}
                       </div>
                     </div>
                   )}
 
+                  {/* Main Buy Button */}
                   <button 
                     onClick={handleContactClick}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform hover:-translate-y-0.5"
+                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <MessageCircle size={20} />
-                    {showContactMenu ? 'Đóng' : 'Liên hệ mua ngay'}
-                    {socials.length > 0 && <ChevronUp size={16} className={`transition-transform duration-200 ${showContactMenu ? 'rotate-180' : ''}`}/>}
+                    {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
+                    {socials.length > 0 && (
+                       <ChevronUp size={16} className={`transition-transform duration-200 ${showContactMenu ? 'rotate-180' : ''}`}/>
+                    )}
                   </button>
                   
                   <button 
@@ -200,30 +212,30 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
 
       {/* Full Description Popup Overlay */}
       {showFullDesc && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-gray-900 w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200">
-             <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowFullDesc(false)}>
+          <div className="bg-white dark:bg-gray-900 w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+             <div className="flex items-center justify-between p-4 px-6 border-b border-gray-100 dark:border-gray-800">
                <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
                  <Info size={20} className="text-emerald-500"/> Chi tiết sản phẩm
                </h3>
                <button 
                 onClick={() => setShowFullDesc(false)} 
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-500"
                >
-                 <X size={20} className="text-gray-500" />
+                 <X size={24} />
                </button>
              </div>
              
-             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-               <div className="markdown-body text-gray-800 dark:text-gray-200 text-base leading-relaxed">
+             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar bg-gray-50 dark:bg-gray-950/50">
+               <div className="markdown-body text-gray-800 dark:text-gray-200 text-base leading-7">
                   <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
                </div>
              </div>
 
-             <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center">
+             <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center bg-white dark:bg-gray-900 rounded-b-2xl">
                <button 
                  onClick={() => setShowFullDesc(false)}
-                 className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors"
+                 className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
                >
                  Đóng
                </button>
