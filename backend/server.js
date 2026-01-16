@@ -6,6 +6,7 @@ const { INITIAL_CONFIG, INITIAL_CATEGORIES, INITIAL_SOCIALS } = require('./data'
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+// Default to localhost ONLY for local dev. On Render, this MUST be set in Environment Variables.
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hylehub_local';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
@@ -13,11 +14,34 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 app.use(cors());
 app.use(express.json());
 
-// --- MONGODB CONNECTION ---
-// Added dbName option to ensure data goes to 'hylehub_store' even if connection string lacks path
-mongoose.connect(MONGODB_URI, { dbName: 'hylehub_store' })
-  .then(() => console.log('✅ Connected to MongoDB (Database: hylehub_store)'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// --- LOGGER MIDDLEWARE ---
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
+// --- MONGODB CONNECTION IMPROVED ---
+// 1. Log events
+mongoose.connection.on('connected', () => console.log('✅ MongoDB: Connection Established'));
+mongoose.connection.on('error', (err) => console.error('❌ MongoDB: Connection Error', err));
+mongoose.connection.on('disconnected', () => console.warn('⚠️ MongoDB: Disconnected'));
+
+// 2. Connect function
+const connectDB = async () => {
+  try {
+    // Mask password in logs for security (in case URI is printed)
+    const maskedURI = MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@');
+    console.log(`🔌 Attempting connect to MongoDB...`);
+    
+    await mongoose.connect(MONGODB_URI, {
+      dbName: 'hylehub_store',
+      serverSelectionTimeoutMS: 5000, // Fail fast (5s) if IP is blocked or URI is wrong
+    });
+  } catch (err) {
+    console.error('❌ Failed to connect to MongoDB. Check your MONGODB_URI on Render and IP Whitelist on Atlas (0.0.0.0/0).');
+  }
+};
+connectDB();
 
 // --- SCHEMAS ---
 const SiteConfigSchema = new mongoose.Schema({
@@ -35,7 +59,7 @@ const SiteConfigSchema = new mongoose.Schema({
 const SiteConfig = mongoose.model('SiteConfig', SiteConfigSchema);
 
 const CategorySchema = new mongoose.Schema({
-  id: { type: String, unique: true }, // Keep string ID for frontend compatibility
+  id: { type: String, unique: true },
   name: String,
   slug: String,
   order: Number,
@@ -80,7 +104,7 @@ const ProductSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', ProductSchema);
 
-// --- AUTH MIDDLEWARE (Simple Password Check) ---
+// --- AUTH MIDDLEWARE ---
 const requireAdmin = (req, res, next) => {
   const authHeader = req.headers['x-admin-password'];
   if (authHeader === ADMIN_PASSWORD) {
@@ -92,20 +116,30 @@ const requireAdmin = (req, res, next) => {
 
 // --- ROUTES ---
 
+// Helper to check DB status before processing
+const checkDb = (req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ 
+      error: 'Database connection is not ready.', 
+      details: 'Check server logs for MONGODB_URI or IP Whitelist issues.' 
+    });
+  }
+  next();
+};
+
 // 1. Config
-app.get('/api/config', async (req, res) => {
+app.get('/api/config', checkDb, async (req, res) => {
   try {
     let config = await SiteConfig.findOne();
     if (!config) {
-      config = await SiteConfig.create(INITIAL_CONFIG); // Seed if empty
+      config = await SiteConfig.create(INITIAL_CONFIG); 
     }
     res.json(config);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/config', requireAdmin, async (req, res) => {
+app.post('/api/config', requireAdmin, checkDb, async (req, res) => {
   try {
-    // Delete old config to ensure only one exists, or update existing
     await SiteConfig.deleteMany({});
     const newConfig = await SiteConfig.create(req.body);
     res.json(newConfig);
@@ -113,11 +147,10 @@ app.post('/api/config', requireAdmin, async (req, res) => {
 });
 
 // 2. Categories
-app.get('/api/categories', async (req, res) => {
+app.get('/api/categories', checkDb, async (req, res) => {
   try {
     const cats = await Category.find().sort({ order: 1 });
     if (cats.length === 0) {
-      // Seed
       await Category.insertMany(INITIAL_CATEGORIES);
       return res.json(INITIAL_CATEGORIES);
     }
@@ -125,7 +158,7 @@ app.get('/api/categories', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/categories', requireAdmin, async (req, res) => {
+app.post('/api/categories', requireAdmin, checkDb, async (req, res) => {
   try {
     const { id, ...data } = req.body;
     const cat = await Category.findOneAndUpdate({ id }, data, { upsert: true, new: true });
@@ -134,7 +167,7 @@ app.post('/api/categories', requireAdmin, async (req, res) => {
 });
 
 // 3. Socials
-app.get('/api/socials', async (req, res) => {
+app.get('/api/socials', checkDb, async (req, res) => {
   try {
     const socials = await SocialLink.find().sort({ order: 1 });
     if (socials.length === 0) {
@@ -145,9 +178,8 @@ app.get('/api/socials', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/socials', requireAdmin, async (req, res) => {
+app.post('/api/socials', requireAdmin, checkDb, async (req, res) => {
   try {
-    // Replace all socials strategy (simplest for list reordering)
     await SocialLink.deleteMany({});
     const newSocials = await SocialLink.insertMany(req.body);
     res.json(newSocials);
@@ -155,17 +187,16 @@ app.post('/api/socials', requireAdmin, async (req, res) => {
 });
 
 // 4. Products
-app.get('/api/products', async (req, res) => {
+app.get('/api/products', checkDb, async (req, res) => {
   try {
     const products = await Product.find().sort({ updatedAt: -1 });
     res.json(products);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.post('/api/products', requireAdmin, async (req, res) => {
+app.post('/api/products', requireAdmin, checkDb, async (req, res) => {
   try {
     const { id, ...data } = req.body;
-    // Generate ID if new
     const finalId = id || Math.random().toString(36).substr(2, 9);
     
     const product = await Product.findOneAndUpdate(
@@ -177,15 +208,16 @@ app.post('/api/products', requireAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.delete('/api/products/:id', requireAdmin, async (req, res) => {
+app.delete('/api/products/:id', requireAdmin, checkDb, async (req, res) => {
   try {
     await Product.findOneAndDelete({ id: req.params.id });
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// 5. Auth Check (Helper)
+// 5. Auth Check
 app.post('/api/auth/login', (req, res) => {
+  // Simple check doesn't need DB
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
     res.json({ success: true });

@@ -14,6 +14,7 @@ class AdminApi {
 
   async login(password: string): Promise<boolean> {
     try {
+      // Login không cần AbortController phức tạp, fetch mặc định browser timeout khá dài
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
