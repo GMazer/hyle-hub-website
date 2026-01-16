@@ -1,16 +1,16 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 import { INITIAL_CONFIG, INITIAL_CATEGORIES, INITIAL_PRODUCTS, INITIAL_SOCIALS } from './mockApi';
 
-// Detect environment: If running locally, assume backend is at localhost:3000
-// When deploying, CHANGE THIS URL to your Render Backend URL via Environment Variable VITE_API_URL
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+// Remove trailing slash if present to avoid double slashes in fetch
+const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+const API_URL = RAW_URL.replace(/\/$/, '');
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {
     try {
-      // Set a timeout to avoid hanging too long if server is waking up
+      // Increased timeout to 20s because Render free tier needs time to wake up
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 20000); 
 
       const res = await fetch(`${API_URL}/api/config`, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -18,7 +18,7 @@ class ClientApi {
       if (!res.ok) throw new Error('Status not ok');
       return await res.json();
     } catch (e) {
-      console.warn(`[ClientApi] Backend (${API_URL}) unavailable. Using Fallback Data.`);
+      console.warn(`[ClientApi] Backend unavailable or timeout. Using Fallback Data.`);
       return INITIAL_CONFIG;
     }
   }
