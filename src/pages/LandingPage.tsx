@@ -5,7 +5,6 @@ import { Search, AlertCircle, Sparkles } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
-import { Link } from 'react-router-dom';
 
 const LandingPage: React.FC = () => {
   const [config, setConfig] = useState<SiteConfig | null>(null);
@@ -63,8 +62,9 @@ const LandingPage: React.FC = () => {
                 <Logo className="h-9 w-9" />
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
+             {/* Hidden Admin Link Area */}
              <div className="flex items-center gap-4">
-                <Link to="/admin" className="text-sm font-medium text-gray-400 hover:text-emerald-400 transition-colors">Quản trị</Link>
+                {/* Link to Admin removed for security by obscurity */}
              </div>
           </div>
         </div>
@@ -256,7 +256,7 @@ const LandingPage: React.FC = () => {
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
           siteConfig={config}
-          socials={socials} // QUAN TRỌNG: Truyền danh sách social vào đây
+          socials={socials} 
           onClose={() => setSelectedProduct(null)} 
         />
       )}
