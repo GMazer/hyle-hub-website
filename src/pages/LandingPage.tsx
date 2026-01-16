@@ -119,7 +119,7 @@ const LandingPage: React.FC = () => {
       {/* Main Content */}
       <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         
-        {/* Controls - Updated top position to top-16 to match navbar height */}
+        {/* Controls - Updated sticky top position to top-16 to match navbar height */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-16 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none transition-all duration-200">
           
           {/* Categories */}

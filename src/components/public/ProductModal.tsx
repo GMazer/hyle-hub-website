@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product, SiteConfig, SocialLink } from '../../types';
-import { X, CheckCircle2, Copy, MessageCircle, Info, ChevronUp, Maximize2, ExternalLink } from 'lucide-react';
+import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink, Maximize2 } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
 import ReactMarkdown from 'react-markdown';
 
@@ -26,7 +26,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Fallback nếu không có social links nào
+  // Fallback if no socials
   const fallbackContactLink = siteConfig.contactInfo.email 
     ? `mailto:${siteConfig.contactInfo.email}?subject=Đặt hàng ${product.name}` 
     : '#';
