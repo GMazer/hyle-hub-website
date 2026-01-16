@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "cd admin-app && npm install",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cd admin-app && npm run build && cd .. && mkdir -p dist/admin && cp -r admin-app/dist/* dist/admin/",
     "preview": "vite preview"
   },
   "dependencies": {

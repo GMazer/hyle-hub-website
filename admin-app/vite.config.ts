@@ -5,11 +5,11 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: '.', // Ensure root is current folder
-  base: './', // Use relative paths for assets
+  root: '.', 
+  base: '/admin/', // QUAN TRỌNG: Đổi từ './' thành '/admin/' để đảm bảo assets load đúng
   server: {
-    port: 3001, // Run on port 3001 to avoid conflict with Landing page (usually 3000/5173)
-    open: true // Auto open browser
+    port: 3001,
+    open: true
   },
   resolve: {
     alias: {
