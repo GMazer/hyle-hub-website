@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../types';
-import { Search, Filter, AlertCircle, Menu, X, Sparkles } from 'lucide-react';
+import { Search, AlertCircle, Sparkles } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
@@ -256,7 +256,7 @@ const LandingPage: React.FC = () => {
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
           siteConfig={config}
-          socials={socials}
+          socials={socials} // QUAN TRỌNG: Truyền danh sách social vào đây
           onClose={() => setSelectedProduct(null)} 
         />
       )}

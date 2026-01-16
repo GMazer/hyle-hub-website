@@ -76,7 +76,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
             {/* Short Desc */}
             <p className="text-gray-600 dark:text-gray-300 mb-6 italic">{product.shortDescription}</p>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-20 md:pb-0"> {/* Padding bottom for mobile scrolling vs fixed button */}
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-20 md:pb-0"> 
                {/* Pricing Table Card Style */}
                <div className="mb-6 bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-100 dark:border-gray-700 overflow-hidden shadow-sm">
                   <div className="bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 border-b border-emerald-100 dark:border-gray-700">
@@ -130,11 +130,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
             <div className="mt-6 flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100 dark:border-gray-800 relative">
               {/* Contact Menu Popover */}
               {showContactMenu && (
-                <div className="absolute bottom-full left-0 w-full sm:w-auto min-w-[200px] mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-emerald-100 dark:border-gray-700 overflow-hidden z-20 animate-in slide-in-from-bottom-2 fade-in duration-200">
+                <div className="absolute bottom-full left-0 w-full sm:w-auto min-w-[200px] mb-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-emerald-100 dark:border-gray-700 overflow-hidden z-30 animate-in slide-in-from-bottom-2 fade-in duration-200">
                   <div className="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-400 border-b border-emerald-100 dark:border-gray-700">
                     Chọn kênh liên hệ:
                   </div>
-                  <div className="p-1">
+                  <div className="p-1 max-h-60 overflow-y-auto">
                     {socials.map(social => (
                       <a 
                         key={social.id}
@@ -156,7 +156,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
 
               <button 
                 onClick={handleContactClick}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform hover:-translate-y-0.5"
+                className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform hover:-translate-y-0.5 relative z-20"
               >
                 <MessageCircle size={20} />
                 {showContactMenu ? 'Đóng danh sách' : 'Liên hệ mua ngay'}
@@ -165,7 +165,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
               
               <button 
                 onClick={handleCopyLink}
-                className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all"
+                className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all relative z-10"
               >
                 {copied ? <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400"/> : <Copy size={20} />}
                 {copied ? 'Đã sao chép' : 'Chia sẻ'}
