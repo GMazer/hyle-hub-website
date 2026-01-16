@@ -90,7 +90,6 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
     }
   };
 
-  // Helper classes for standard input styles with Dark Mode & Cursor support
   const inputClass = "w-full p-2.5 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 cursor-text transition-colors";
   const labelClass = "block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1";
   
@@ -175,7 +174,6 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
           </div>
         </div>
         
-        {/* Price Options */}
         <div className="md:col-span-2 border-t border-gray-100 dark:border-gray-800 pt-6">
           <div className="flex justify-between mb-4">
             <h3 className="font-bold text-emerald-800 dark:text-emerald-400">Bảng giá</h3>
