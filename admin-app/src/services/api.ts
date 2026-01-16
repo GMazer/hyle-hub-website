@@ -1,7 +1,11 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 // Points to the Node.js Backend on Render
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+// Remove ALL trailing slashes
+export const API_URL = RAW_URL.replace(/\/+$/, '');
+
+console.log(`[AdminApi] Connecting to: ${API_URL}`);
 
 class AdminApi {
   // Helper for auth headers - Get dynamic password from Login step
@@ -101,6 +105,18 @@ class AdminApi {
       headers: this.getHeaders()
     });
     if (!res.ok) throw new Error('Failed to delete product');
+  }
+
+  // Add Login method explicitly to class if needed or use standalone fetch in Login.tsx
+  async login(password: string): Promise<boolean> {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data.success;
   }
 }
 

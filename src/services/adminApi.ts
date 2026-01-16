@@ -1,7 +1,7 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
-export const API_URL = RAW_URL.replace(/\/$/, '');
+export const API_URL = RAW_URL.replace(/\/+$/, '');
 
 class AdminApi {
   private getHeaders() {
@@ -14,7 +14,6 @@ class AdminApi {
 
   async login(password: string): Promise<boolean> {
     try {
-      // Login không cần AbortController phức tạp, fetch mặc định browser timeout khá dài
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

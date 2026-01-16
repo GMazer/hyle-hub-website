@@ -69,22 +69,22 @@ const FALLBACK_PRODUCTS: Product[] = [
   }
 ];
 
-// Get API URL from env or default
+// CLEANUP URL: Remove ALL trailing slashes
 const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
-const API_URL = RAW_URL.replace(/\/$/, '');
+const API_URL = RAW_URL.replace(/\/+$/, '');
+
+console.log(`[Config] Backend API URL: ${API_URL}`);
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {
     try {
-      // QUAN TRỌNG: Render Free Tier mất khoảng 60s để khởi động (Cold Start).
-      // Timeout cũ 3s quá ngắn, tăng lên 60s để Frontend không nhảy sang Mock Data quá sớm.
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); 
 
       const res = await fetch(`${API_URL}/api/config`, { signal: controller.signal });
       clearTimeout(timeoutId);
 
-      if (!res.ok) throw new Error('Status not ok');
+      if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
       const data = await res.json();
       console.log('✅ [ClientApi] Connected to Real Backend');
       return data || FALLBACK_CONFIG;
