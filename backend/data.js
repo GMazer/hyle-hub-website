@@ -1,16 +1,9 @@
-import { Product, Category, SiteConfig, SocialLink, PriceOption } from '../types';
-
-// NOTE: This mock API is used for the frontend demo and stores data in LocalStorage.
-// For production with the Node.js backend:
-// 1. Deploy the 'backend/' folder to Render.
-// 2. Replace the methods below to use fetch() calling your Render API URL.
-
-// Initial Seed Data
-const INITIAL_CONFIG: SiteConfig = {
+// Initial Seed Data mirrored from frontend
+const INITIAL_CONFIG = {
   siteName: "HyleHub Store",
   tagline: "Cung cấp tài khoản Premium giá rẻ",
   bannerUrl: "https://picsum.photos/1200/400?grayscale",
-  logoUrl: "", // Empty string means use local Logo component
+  logoUrl: "",
   notices: [
     "Hỗ trợ kỹ thuật: 8:00 - 22:00 hàng ngày",
     "Bảo hành trọn đời gói đăng ký",
@@ -22,20 +15,20 @@ const INITIAL_CONFIG: SiteConfig = {
   }
 };
 
-const INITIAL_CATEGORIES: Category[] = [
+const INITIAL_CATEGORIES = [
   { id: '1', name: 'Công cụ AI', slug: 'ai-tools', order: 1, isVisible: true, description: 'ChatGPT, Midjourney...' },
   { id: '2', name: 'Giải trí & Phim', slug: 'entertainment', order: 2, isVisible: true, description: 'Netflix, Youtube, Spotify' },
   { id: '3', name: 'Thiết kế & Học tập', slug: 'design-edu', order: 3, isVisible: true, description: 'Canva, Duolingo, Coursera' }
 ];
 
-const INITIAL_SOCIALS: SocialLink[] = [
+const INITIAL_SOCIALS = [
   { id: '1', platform: 'Instagram', url: 'https://instagram.com/hylehub', iconName: 'Instagram', handle: '@hylehub', order: 1 },
   { id: '2', platform: 'Facebook', url: '#', iconName: 'Facebook', handle: 'HyleHub Store', order: 2 },
   { id: '3', platform: 'Zalo', url: '#', iconName: 'MessageCircle', handle: '0999.999.999', order: 3 },
   { id: '4', platform: 'Telegram', url: 'https://t.me/hylehub', iconName: 'Telegram', handle: '@hylehub', order: 4 }
 ];
 
-const INITIAL_PRODUCTS: Product[] = [
+const INITIAL_PRODUCTS = [
   {
     id: '101',
     name: 'ChatGPT Plus / OpenAI',
@@ -109,106 +102,9 @@ const INITIAL_PRODUCTS: Product[] = [
   }
 ];
 
-// Helper to simulate delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-class MockApi {
-  private getStorage<T>(key: string, defaultData: T): T {
-    const stored = localStorage.getItem(key);
-    if (!stored) {
-      localStorage.setItem(key, JSON.stringify(defaultData));
-      return defaultData;
-    }
-    return JSON.parse(stored);
-  }
-
-  private setStorage(key: string, data: any) {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
-  // --- CONFIG ---
-  async getConfig(): Promise<SiteConfig> {
-    await delay(300);
-    return this.getStorage('siteConfig', INITIAL_CONFIG);
-  }
-
-  async updateConfig(config: SiteConfig): Promise<SiteConfig> {
-    await delay(500);
-    this.setStorage('siteConfig', config);
-    return config;
-  }
-
-  // --- SOCIALS ---
-  async getSocials(): Promise<SocialLink[]> {
-    await delay(200);
-    return this.getStorage('socials', INITIAL_SOCIALS);
-  }
-
-  async updateSocials(socials: SocialLink[]): Promise<SocialLink[]> {
-    await delay(400);
-    this.setStorage('socials', socials);
-    return socials;
-  }
-
-  // --- CATEGORIES ---
-  async getCategories(): Promise<Category[]> {
-    await delay(300);
-    return this.getStorage('categories', INITIAL_CATEGORIES);
-  }
-
-  async saveCategory(category: Category): Promise<Category> {
-    await delay(400);
-    const categories = this.getStorage('categories', INITIAL_CATEGORIES);
-    const index = categories.findIndex(c => c.id === category.id);
-    if (index >= 0) {
-      categories[index] = category;
-    } else {
-      categories.push({ ...category, id: Math.random().toString(36).substr(2, 9) });
-    }
-    this.setStorage('categories', categories);
-    return category;
-  }
-
-  async deleteCategory(id: string): Promise<void> {
-    await delay(300);
-    const categories = this.getStorage('categories', INITIAL_CATEGORIES);
-    this.setStorage('categories', categories.filter(c => c.id !== id));
-  }
-
-  // --- PRODUCTS ---
-  async getProducts(): Promise<Product[]> {
-    await delay(500);
-    return this.getStorage('products', INITIAL_PRODUCTS);
-  }
-
-  async saveProduct(product: Product): Promise<Product> {
-    await delay(600);
-    const products = this.getStorage('products', INITIAL_PRODUCTS);
-    const index = products.findIndex(p => p.id === product.id);
-    const now = new Date().toISOString();
-    
-    if (index >= 0) {
-      products[index] = { ...product, updatedAt: now };
-      this.setStorage('products', products);
-      return products[index];
-    } else {
-      const newProduct = { 
-        ...product, 
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: now,
-        updatedAt: now
-      };
-      products.push(newProduct);
-      this.setStorage('products', products);
-      return newProduct;
-    }
-  }
-
-  async deleteProduct(id: string): Promise<void> {
-    await delay(400);
-    const products = this.getStorage('products', INITIAL_PRODUCTS);
-    this.setStorage('products', products.filter(p => p.id !== id));
-  }
-}
-
-export const mockApi = new MockApi();
+module.exports = {
+  INITIAL_CONFIG,
+  INITIAL_CATEGORIES,
+  INITIAL_PRODUCTS,
+  INITIAL_SOCIALS
+};
