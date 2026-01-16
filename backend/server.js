@@ -14,8 +14,9 @@ app.use(cors());
 app.use(express.json());
 
 // --- MONGODB CONNECTION ---
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
+// Added dbName option to ensure data goes to 'hylehub_store' even if connection string lacks path
+mongoose.connect(MONGODB_URI, { dbName: 'hylehub_store' })
+  .then(() => console.log('✅ Connected to MongoDB (Database: hylehub_store)'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // --- SCHEMAS ---
