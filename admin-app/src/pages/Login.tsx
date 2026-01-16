@@ -16,9 +16,10 @@ const Login: React.FC = () => {
     setLoading(true);
     setError('');
 
-    // Hardcode check for Phase 1 as per requirements or calling an auth endpoint
-    // Here we simulate the check or call the real backend if implemented
     try {
+        // Gọi API Login
+        // Lưu ý: Render Free Tier mất khoảng 60s để khởi động (Cold Start)
+        // Nếu fetch quá lâu có thể gây timeout
         const res = await fetch(`${API_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -26,24 +27,18 @@ const Login: React.FC = () => {
         });
         
         if (res.ok) {
+            // Đăng nhập thành công từ Server
             localStorage.setItem('isAuthenticated', 'true');
-            // Store password to send in headers for subsequent requests
-            // In a real app, use a JWT token
             localStorage.setItem('adminPassword', password); 
             navigate('/admin');
         } else {
-            setError('Mật khẩu không đúng.');
+            // Server trả về 401 (Sai mật khẩu)
+            setError('Mật khẩu không đúng (Kiểm tra biến môi trường ADMIN_PASSWORD trên Render).');
         }
     } catch (e) {
         console.error(e);
-        // Fallback for demo/local if backend is not reachable or configured differently
-        if (password === 'admin123') {
-             localStorage.setItem('isAuthenticated', 'true');
-             localStorage.setItem('adminPassword', password);
-             navigate('/admin');
-        } else {
-             setError('Lỗi kết nối hoặc sai mật khẩu.');
-        }
+        // Không còn fallback admin123 nữa
+        setError('Lỗi kết nối Server. Nếu dùng Render Free, hãy đợi 1 phút để Server khởi động rồi thử lại.');
     } finally {
         setLoading(false);
     }
@@ -85,7 +80,7 @@ const Login: React.FC = () => {
            <div className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded">
               <AlertTriangle size={16} className="shrink-0 text-amber-500" />
               <div>
-                <strong>Ghi chú:</strong> Mật khẩu mặc định backend là <code>admin123</code> (nếu chưa đổi).
+                <strong>Lưu ý:</strong> Server trên Render Free sẽ ngủ nếu không dùng. Lần đăng nhập đầu tiên có thể mất <strong>60 giây</strong> để server tỉnh dậy.
               </div>
            </div>
         </div>
