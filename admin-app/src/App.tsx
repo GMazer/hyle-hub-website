@@ -1,11 +1,10 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import Login from './pages/admin/Login';
-import AdminLayout from './components/admin/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import Products from './pages/admin/Products';
-import Categories from './pages/admin/Categories';
+import Login from './pages/Login';
+import AdminLayout from './components/AdminLayout';
+import Dashboard from './pages/Dashboard';
+import Products from './pages/Products';
+import Categories from './pages/Categories';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuth = localStorage.getItem('isAuthenticated') === 'true';
@@ -17,11 +16,13 @@ const App: React.FC = () => {
   return (
     <HashRouter>
       <Routes>
-        {/* Public Visitor Route */}
-        <Route path="/" element={<LandingPage />} />
+        {/* Redirect root to Login */}
+        <Route path="/" element={<Navigate to="/admin/login" replace />} />
 
-        {/* Admin Routes */}
+        {/* Public Admin Route */}
         <Route path="/admin/login" element={<Login />} />
+
+        {/* Protected Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
           <Route path="categories" element={<Categories />} />
@@ -29,7 +30,7 @@ const App: React.FC = () => {
         </Route>
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/admin/login" replace />} />
       </Routes>
     </HashRouter>
   );

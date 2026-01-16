@@ -2,14 +2,14 @@ import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 // Points to the Node.js Backend on Render
 const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
-const ADMIN_PASSWORD = 'admin123'; // Hardcoded for Phase 1 as requested. In Prod, prompt user or store in session.
 
 class AdminApi {
-  // Helper for auth headers
+  // Helper for auth headers - Get dynamic password from Login step
   private getHeaders() {
+    const password = localStorage.getItem('adminPassword') || 'admin123';
     return {
       'Content-Type': 'application/json',
-      'x-admin-password': ADMIN_PASSWORD
+      'x-admin-password': password
     };
   }
 
