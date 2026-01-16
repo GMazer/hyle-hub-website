@@ -63,7 +63,7 @@ const LandingPage: React.FC = () => {
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
              <div className="flex items-center gap-4">
-                {/* Admin Link removed for security */}
+                {/* Admin Link removed */}
              </div>
           </div>
         </div>

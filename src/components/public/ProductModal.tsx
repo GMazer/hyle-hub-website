@@ -65,8 +65,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
             </div>
 
             {/* Right: Info - Scrollable Area */}
-            <div className="w-full md:w-7/12 flex flex-col h-full overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
+            <div className="w-full md:w-7/12 flex flex-col h-full overflow-hidden relative">
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar pb-24">
                 
                 {/* Header Info */}
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -151,49 +151,51 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                 )}
               </div>
 
+              {/* SLIDE UP CONTACT MENU OVERLAY */}
+              {showContactMenu && (
+                 <div className="absolute bottom-0 left-0 w-full z-30 animate-in slide-in-from-bottom duration-300">
+                    <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] border-t border-gray-200 dark:border-gray-700 overflow-hidden">
+                       <div className="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
+                           <span className="font-bold text-emerald-800 dark:text-emerald-300">Chọn kênh liên hệ</span>
+                           <button onClick={() => setShowContactMenu(false)} className="p-1 bg-white dark:bg-gray-700 rounded-full text-gray-500 hover:text-red-500 shadow-sm"><X size={16}/></button>
+                       </div>
+                       <div className="p-4 space-y-2 max-h-[250px] overflow-y-auto">
+                          {socials.map(social => (
+                            <a 
+                              key={social.id}
+                              href={social.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl transition-colors group"
+                            >
+                               <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-emerald-600 dark:text-emerald-400">
+                                     <DynamicIcon name={social.iconName} size={18} />
+                                  </div>
+                                  <span className="font-bold text-gray-800 dark:text-gray-100">{social.platform}</span>
+                               </div>
+                               <ExternalLink size={16} className="text-gray-400 group-hover:text-emerald-500"/>
+                            </a>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+              )}
+
               {/* Actions Footer */}
               <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
                 <div className="flex flex-col sm:flex-row gap-3 relative">
-                  
-                  {/* Contact Menu Popover (The 3 Options) */}
-                  {showContactMenu && (
-                    <div className="absolute bottom-[calc(100%+10px)] left-0 w-full sm:w-72 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-30 animate-in slide-in-from-bottom-2 fade-in duration-200">
-                      <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
-                         <span className="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Chọn kênh hỗ trợ</span>
-                         <button onClick={() => setShowContactMenu(false)}><X size={14} className="text-gray-400 hover:text-gray-600"/></button>
-                      </div>
-                      <div className="p-2 space-y-1">
-                        {socials.map(social => (
-                          <a 
-                            key={social.id}
-                            href={social.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center justify-between px-4 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl text-gray-800 dark:text-gray-100 transition-colors group"
-                          >
-                            <div className="flex items-center gap-3">
-                               <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
-                                  <DynamicIcon name={social.iconName} size={16} />
-                               </div>
-                               <span className="font-semibold">{social.platform}</span>
-                            </div>
-                            <ExternalLink size={14} className="text-gray-400 group-hover:text-emerald-500"/>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Main Buy Button */}
                   <button 
                     onClick={handleContactClick}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform hover:-translate-y-0.5 active:translate-y-0"
+                    className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform active:scale-95 ${
+                      showContactMenu 
+                        ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
+                        : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5'
+                    }`}
                   >
                     <MessageCircle size={20} />
                     {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
-                    {socials.length > 0 && (
-                       <ChevronUp size={16} className={`transition-transform duration-200 ${showContactMenu ? 'rotate-180' : ''}`}/>
-                    )}
                   </button>
                   
                   <button 
