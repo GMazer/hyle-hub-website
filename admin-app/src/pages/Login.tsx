@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminApi, API_URL } from '../../services/api'; // Corrected import path
+import { adminApi, API_URL } from '../services/api';
 import { AlertTriangle } from 'lucide-react';
 
 const Login: React.FC = () => {
