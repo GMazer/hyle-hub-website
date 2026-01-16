@@ -55,7 +55,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30">
       {/* Navbar */}
-      <nav className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-40">
+      <nav className="bg-gray-900/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-40 transition-all duration-300">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
              <div className="flex items-center gap-3">
@@ -119,8 +119,8 @@ const LandingPage: React.FC = () => {
       {/* Main Content */}
       <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         
-        {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-20 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none">
+        {/* Controls - Updated top position to top-16 to match navbar height */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-16 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none transition-all duration-200">
           
           {/* Categories */}
           <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar">
