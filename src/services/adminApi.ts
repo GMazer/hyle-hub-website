@@ -1,15 +1,31 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 // Points to the Node.js Backend on Render
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
-const ADMIN_PASSWORD = 'admin123'; 
+export const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 
 class AdminApi {
   private getHeaders() {
+    const password = localStorage.getItem('adminPassword') || '';
     return {
       'Content-Type': 'application/json',
-      'x-admin-password': ADMIN_PASSWORD
+      'x-admin-password': password
     };
+  }
+
+  async login(password: string): Promise<boolean> {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data.success;
+    } catch (e) {
+      console.error("Login failed:", e);
+      throw e; // Throw error to handle in UI
+    }
   }
 
   async getConfig(): Promise<SiteConfig | null> {
