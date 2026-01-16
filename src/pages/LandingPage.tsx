@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { clientApi } from '../services/clientApi'; // CHANGED: Use real API
+import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../types';
 import { Search, Filter, AlertCircle, Menu, X, Sparkles } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
+import { Link } from 'react-router-dom';
 
 const LandingPage: React.FC = () => {
   const [config, setConfig] = useState<SiteConfig | null>(null);
@@ -63,9 +64,7 @@ const LandingPage: React.FC = () => {
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
              <div className="flex items-center gap-4">
-                {/* Removed localhost link. In production, Admin is typically a separate deployment or route. */}
-                {/* Use a relative path assuming admin might be deployed at /admin or a placeholder */}
-                <a href="/admin" target="_blank" rel="noreferrer" className="text-sm font-medium text-gray-400 hover:text-emerald-400 transition-colors">Quản trị</a>
+                <Link to="/admin" className="text-sm font-medium text-gray-400 hover:text-emerald-400 transition-colors">Quản trị</Link>
              </div>
           </div>
         </div>

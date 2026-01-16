@@ -1,8 +1,8 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 // Detect environment: If running locally, assume backend is at localhost:3000
-// When deploying, CHANGE THIS URL to your Render Backend URL (e.g., https://hylehub-api.onrender.com)
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
+// When deploying, CHANGE THIS URL to your Render Backend URL
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {

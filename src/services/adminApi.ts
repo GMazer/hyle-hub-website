@@ -2,10 +2,9 @@ import { Product, Category, SiteConfig, SocialLink } from '../types';
 
 // Points to the Node.js Backend on Render
 const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
-const ADMIN_PASSWORD = 'admin123'; // Hardcoded for Phase 1 as requested. In Prod, prompt user or store in session.
+const ADMIN_PASSWORD = 'admin123'; 
 
 class AdminApi {
-  // Helper for auth headers
   private getHeaders() {
     return {
       'Content-Type': 'application/json',
@@ -13,7 +12,6 @@ class AdminApi {
     };
   }
 
-  // --- CONFIG ---
   async getConfig(): Promise<SiteConfig | null> {
     const res = await fetch(`${API_URL}/api/config`);
     return res.json();
@@ -29,7 +27,6 @@ class AdminApi {
     return res.json();
   }
 
-  // --- SOCIALS ---
   async getSocials(): Promise<SocialLink[]> {
     const res = await fetch(`${API_URL}/api/socials`);
     return res.json();
@@ -45,13 +42,11 @@ class AdminApi {
     return res.json();
   }
 
-  // --- CATEGORIES ---
   async getCategories(): Promise<Category[]> {
     const res = await fetch(`${API_URL}/api/categories`);
     return res.json();
   }
 
-  // --- PRODUCTS ---
   async getProducts(): Promise<Product[]> {
     const res = await fetch(`${API_URL}/api/products`);
     return res.json();
