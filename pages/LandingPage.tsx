@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { mockApi } from '../services/mockApi';
+import { clientApi } from '../services/clientApi'; // CHANGED: Use real API
 import { SiteConfig, Category, Product, SocialLink } from '../types';
 import { Search, Filter, AlertCircle, Menu, X, Sparkles } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
@@ -24,10 +24,10 @@ const LandingPage: React.FC = () => {
     const fetchData = async () => {
       try {
         const [conf, cats, prods, socs] = await Promise.all([
-          mockApi.getConfig(),
-          mockApi.getCategories(),
-          mockApi.getProducts(),
-          mockApi.getSocials()
+          clientApi.getConfig(),
+          clientApi.getCategories(),
+          clientApi.getProducts(),
+          clientApi.getSocials()
         ]);
         setConfig(conf);
         setCategories(cats.filter(c => c.isVisible).sort((a, b) => a.order - b.order));
@@ -50,7 +50,7 @@ const LandingPage: React.FC = () => {
   });
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-emerald-400 font-medium bg-gray-950">Đang tải dữ liệu...</div>;
-  if (!config) return <div className="min-h-screen flex items-center justify-center text-gray-200 bg-gray-950">Không thể tải cấu hình</div>;
+  if (!config) return <div className="min-h-screen flex items-center justify-center text-gray-200 bg-gray-950">Không thể tải cấu hình (Hãy kiểm tra Backend)</div>;
 
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30">
@@ -63,7 +63,8 @@ const LandingPage: React.FC = () => {
                 <span className="font-extrabold text-xl text-white tracking-tight">{config.siteName}</span>
              </div>
              <div className="flex items-center gap-4">
-                <a href="/#/admin" className="text-sm font-medium text-gray-400 hover:text-emerald-400 transition-colors">Quản trị</a>
+                {/* Link to Admin App - Assuming it's running on a different port or path */}
+                <a href="http://localhost:3001" target="_blank" rel="noreferrer" className="text-sm font-medium text-gray-400 hover:text-emerald-400 transition-colors">Quản trị</a>
              </div>
           </div>
         </div>

@@ -1,82 +1,78 @@
 import { Product, Category, SiteConfig, SocialLink } from '../types';
 
-// Mock API logic mirrored here for standalone functionality
-// In production, point this to your Render Backend URL
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Points to the Node.js Backend
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
+const ADMIN_PASSWORD = 'admin123'; // Hardcoded for Phase 1 as requested. In Prod, prompt user or store in session.
 
 class AdminApi {
-  private getStorage<T>(key: string, defaultData: T): T {
-    const stored = localStorage.getItem(key);
-    // If not found, we don't return defaults here to avoid overwriting live data with seed data accidentally
-    // unless it's strictly necessary.
-    if (!stored) return defaultData; 
-    return JSON.parse(stored);
+  // Helper for auth headers
+  private getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'x-admin-password': ADMIN_PASSWORD
+    };
   }
 
-  private setStorage(key: string, data: any) {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
+  // --- CONFIG ---
   async getConfig(): Promise<SiteConfig | null> {
-    await delay(300);
-    const stored = localStorage.getItem('siteConfig');
-    return stored ? JSON.parse(stored) : null;
+    const res = await fetch(`${API_URL}/api/config`);
+    return res.json();
   }
 
   async updateConfig(config: SiteConfig): Promise<SiteConfig> {
-    await delay(500);
-    this.setStorage('siteConfig', config);
-    return config;
+    const res = await fetch(`${API_URL}/api/config`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(config)
+    });
+    if (!res.ok) throw new Error('Failed to update config');
+    return res.json();
   }
 
+  // --- SOCIALS ---
   async getSocials(): Promise<SocialLink[]> {
-    await delay(200);
-    return this.getStorage('socials', []);
+    const res = await fetch(`${API_URL}/api/socials`);
+    return res.json();
   }
 
   async updateSocials(socials: SocialLink[]): Promise<SocialLink[]> {
-    await delay(400);
-    this.setStorage('socials', socials);
-    return socials;
+    const res = await fetch(`${API_URL}/api/socials`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(socials)
+    });
+    if (!res.ok) throw new Error('Failed to update socials');
+    return res.json();
   }
 
+  // --- CATEGORIES ---
   async getCategories(): Promise<Category[]> {
-    await delay(300);
-    return this.getStorage('categories', []);
+    const res = await fetch(`${API_URL}/api/categories`);
+    return res.json();
   }
 
+  // --- PRODUCTS ---
   async getProducts(): Promise<Product[]> {
-    await delay(500);
-    return this.getStorage('products', []);
+    const res = await fetch(`${API_URL}/api/products`);
+    return res.json();
   }
 
   async saveProduct(product: Product): Promise<Product> {
-    await delay(600);
-    const products = this.getStorage<Product[]>('products', []);
-    const index = products.findIndex(p => p.id === product.id);
-    const now = new Date().toISOString();
-    
-    if (index >= 0) {
-      products[index] = { ...product, updatedAt: now };
-      this.setStorage('products', products);
-      return products[index];
-    } else {
-      const newProduct = { 
-        ...product, 
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: now,
-        updatedAt: now
-      };
-      products.push(newProduct);
-      this.setStorage('products', products);
-      return newProduct;
-    }
+    const res = await fetch(`${API_URL}/api/products`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(product)
+    });
+    if (!res.ok) throw new Error('Failed to save product');
+    return res.json();
   }
 
   async deleteProduct(id: string): Promise<void> {
-    await delay(400);
-    const products = this.getStorage<Product[]>('products', []);
-    this.setStorage('products', products.filter(p => p.id !== id));
+    const res = await fetch(`${API_URL}/api/products/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete product');
   }
 }
 
