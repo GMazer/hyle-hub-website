@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Product, SiteConfig, SocialLink } from '../../types';
-import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink, Maximize2 } from 'lucide-react';
+import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
-import ReactMarkdown from 'react-markdown';
 
 interface ProductModalProps {
   product: Product;
@@ -15,7 +14,6 @@ interface ProductModalProps {
 const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, socials = [], isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [showContactMenu, setShowContactMenu] = useState(false);
-  const [showFullDesc, setShowFullDesc] = useState(false);
 
   if (!isOpen) return null;
 
@@ -26,7 +24,6 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Fallback if no socials
   const fallbackContactLink = siteConfig.contactInfo.email 
     ? `mailto:${siteConfig.contactInfo.email}?subject=Đặt hàng ${product.name}` 
     : '#';
@@ -40,212 +37,152 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
   };
 
   return (
-    <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-        <div className="absolute inset-0 bg-emerald-900/60 backdrop-blur-sm" onClick={onClose} />
-        <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900 rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200 transition-colors border border-emerald-100 dark:border-gray-800 flex flex-col">
-          
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 bg-emerald-50 dark:bg-gray-800 rounded-full hover:bg-emerald-100 dark:hover:bg-gray-700 text-emerald-800 dark:text-emerald-400 z-10 transition-colors"
-          >
-            <X size={20} />
-          </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 bg-emerald-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-900 rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-200 transition-colors border border-emerald-100 dark:border-gray-800 flex flex-col">
+        
+        <button 
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-emerald-50 dark:bg-gray-800 rounded-full hover:bg-emerald-100 dark:hover:bg-gray-700 text-emerald-800 dark:text-emerald-400 z-10 transition-colors"
+        >
+          <X size={20} />
+        </button>
 
-          <div className="flex flex-col md:flex-row h-full overflow-hidden">
-            {/* Left: Single Main Image */}
-            <div className="w-full md:w-5/12 bg-emerald-50/50 dark:bg-gray-800/50 p-6 md:p-8 flex items-center justify-center shrink-0">
-              <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-                <img 
-                  src={product.thumbnailUrl} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain"
-                />
-              </div>
+        <div className="flex flex-col md:flex-row h-full overflow-hidden">
+          {/* Left: Single Main Image */}
+          <div className="w-full md:w-5/12 bg-emerald-50/50 dark:bg-gray-800/50 p-6 md:p-8 flex items-center justify-center shrink-0">
+            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+              <img 
+                src={product.thumbnailUrl} 
+                alt={product.name} 
+                className="w-full h-full object-contain"
+              />
             </div>
+          </div>
 
-            {/* Right: Info - Scrollable Area */}
-            <div className="w-full md:w-7/12 flex flex-col h-full overflow-hidden relative">
-              <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar pb-24">
-                
-                {/* Header Info */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {product.tags.map((tag, idx) => (
-                    <span key={idx} className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <h2 className="text-2xl md:text-3xl font-extrabold text-emerald-900 dark:text-white mb-2">{product.name}</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-6 italic">{product.shortDescription}</p>
-
-                {/* Pricing Table */}
-                <div className="mb-6 bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-100 dark:border-gray-700 overflow-hidden shadow-sm">
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 border-b border-emerald-100 dark:border-gray-700">
-                      <h3 className="font-bold text-emerald-800 dark:text-emerald-300 text-sm uppercase tracking-wider flex items-center gap-2">
-                        <CheckCircle2 size={16}/> Bảng giá
-                      </h3>
-                    </div>
-                    <div className="divide-y divide-emerald-50 dark:divide-gray-700">
-                      {product.priceOptions.map((opt) => (
-                        <div 
-                          key={opt.id} 
-                          className={`flex items-center justify-between p-4 transition-colors ${opt.isHighlight ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''}`}
-                        >
-                          <div>
-                            <div className="font-bold text-gray-900 dark:text-gray-100">{opt.name}</div>
-                            {opt.description && <div className="text-xs text-gray-500 dark:text-gray-400">{opt.description}</div>}
-                          </div>
-                          <div className="text-right">
-                            <div className="font-extrabold text-lg text-emerald-600 dark:text-emerald-400">
-                              {new Intl.NumberFormat('vi-VN').format(opt.price)}{opt.currency.toUpperCase()}
-                            </div>
-                            <div className="text-xs text-gray-400">/ {opt.unit}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                </div>
-
-                {/* Detailed Info (Markdown) */}
-                {product.fullDescription && (
-                  <div className="mb-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-gray-900 dark:text-white text-sm flex items-center gap-2">
-                          <Info size={16} className="text-emerald-500"/> Thông tin chi tiết
-                        </h3>
-                        <button 
-                          onClick={() => setShowFullDesc(true)}
-                          className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded"
-                        >
-                          <Maximize2 size={12} /> Phóng to xem
-                        </button>
-                      </div>
-                      
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700 relative">
-                         {/* Markdown Content Container with Scroll */}
-                         <div className="markdown-body text-gray-700 dark:text-gray-300 text-sm max-h-[200px] overflow-hidden relative">
-                            <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
-                            {/* Fade effect at bottom */}
-                            <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-50 dark:from-gray-900/80 to-transparent pointer-events-none"></div>
-                         </div>
-                         <div className="mt-2 text-center pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <button 
-                              onClick={() => setShowFullDesc(true)}
-                              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 uppercase tracking-wide transition-colors"
-                            >
-                              Đọc toàn bộ
-                            </button>
-                         </div>
-                      </div>
-                  </div>
-                )}
-
-                {/* Notes */}
-                {product.notes && (
-                  <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm flex gap-3">
-                    <div className="shrink-0 mt-0.5"><Info size={16} /></div>
-                    <span className="font-medium">{product.notes}</span>
-                  </div>
-                )}
+          {/* Right: Info */}
+          <div className="w-full md:w-7/12 flex flex-col h-full overflow-hidden relative">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar pb-24">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {product.tags.map((tag, idx) => (
+                  <span key={idx} className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full">
+                    {tag}
+                  </span>
+                ))}
               </div>
 
-              {/* SLIDE UP CONTACT MENU OVERLAY */}
-              {showContactMenu && (
-                 <div className="absolute bottom-0 left-0 w-full z-30 animate-in slide-in-from-bottom duration-300">
-                    <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] border-t border-gray-200 dark:border-gray-700 overflow-hidden">
-                       <div className="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
-                           <span className="font-bold text-emerald-800 dark:text-emerald-300">Chọn kênh liên hệ</span>
-                           <button onClick={() => setShowContactMenu(false)} className="p-1 bg-white dark:bg-gray-700 rounded-full text-gray-500 hover:text-red-500 shadow-sm"><X size={16}/></button>
-                       </div>
-                       <div className="p-4 space-y-2 max-h-[250px] overflow-y-auto">
-                          {socials.map(social => (
-                            <a 
-                              key={social.id}
-                              href={social.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl transition-colors group"
-                            >
-                               <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-emerald-600 dark:text-emerald-400">
-                                     <DynamicIcon name={social.iconName} size={18} />
-                                  </div>
-                                  <span className="font-bold text-gray-800 dark:text-gray-100">{social.platform}</span>
-                               </div>
-                               <ExternalLink size={16} className="text-gray-400 group-hover:text-emerald-500"/>
-                            </a>
-                          ))}
-                       </div>
-                    </div>
-                 </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-emerald-900 dark:text-white mb-2">{product.name}</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6 italic">{product.shortDescription}</p>
+
+              {/* Pricing Table */}
+              <div className="mb-6 bg-white dark:bg-gray-800 rounded-2xl border-2 border-emerald-100 dark:border-gray-700 overflow-hidden shadow-sm">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 border-b border-emerald-100 dark:border-gray-700">
+                    <h3 className="font-bold text-emerald-800 dark:text-emerald-300 text-sm uppercase tracking-wider flex items-center gap-2">
+                      <CheckCircle2 size={16}/> Bảng giá
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-emerald-50 dark:divide-gray-700">
+                    {product.priceOptions.map((opt) => (
+                      <div 
+                        key={opt.id} 
+                        className={`flex items-center justify-between p-4 transition-colors ${opt.isHighlight ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''}`}
+                      >
+                        <div>
+                          <div className="font-bold text-gray-900 dark:text-gray-100">{opt.name}</div>
+                          {opt.description && <div className="text-xs text-gray-500 dark:text-gray-400">{opt.description}</div>}
+                        </div>
+                        <div className="text-right">
+                          <div className="font-extrabold text-lg text-emerald-600 dark:text-emerald-400">
+                            {new Intl.NumberFormat('vi-VN').format(opt.price)}{opt.currency.toUpperCase()}
+                          </div>
+                          <div className="text-xs text-gray-400">/ {opt.unit}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+              </div>
+
+              {/* Detailed Info */}
+              {product.fullDescription && (
+                <div className="mb-6">
+                   <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 flex items-center gap-2">
+                     <Info size={16} className="text-emerald-500"/> Thông tin chi tiết
+                   </h3>
+                   <div className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                     {product.fullDescription}
+                   </div>
+                </div>
               )}
 
-              {/* Actions Footer */}
-              <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
-                <div className="flex flex-col sm:flex-row gap-3 relative">
-                  {/* Main Buy Button */}
-                  <button 
-                    onClick={handleContactClick}
-                    className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform active:scale-95 ${
-                      showContactMenu 
-                        ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5'
-                    }`}
-                  >
-                    <MessageCircle size={20} />
-                    {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
-                  </button>
-                  
-                  <button 
-                    onClick={handleCopyLink}
-                    className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all"
-                  >
-                    {copied ? <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400"/> : <Copy size={20} />}
-                    {copied ? 'Đã chép' : 'Share'}
-                  </button>
+              {/* Notes */}
+              {product.notes && (
+                <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm flex gap-3">
+                  <div className="shrink-0 mt-0.5"><Info size={16} /></div>
+                  <span className="font-medium">{product.notes}</span>
                 </div>
+              )}
+            </div>
+
+            {/* SLIDE UP CONTACT MENU OVERLAY */}
+            {showContactMenu && (
+               <div className="absolute bottom-0 left-0 w-full z-30 animate-in slide-in-from-bottom duration-300">
+                  <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] border-t border-gray-200 dark:border-gray-700 overflow-hidden">
+                     <div className="bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 flex justify-between items-center border-b border-gray-100 dark:border-gray-700">
+                         <span className="font-bold text-emerald-800 dark:text-emerald-300">Chọn kênh liên hệ</span>
+                         <button onClick={() => setShowContactMenu(false)} className="p-1 bg-white dark:bg-gray-700 rounded-full text-gray-500 hover:text-red-500 shadow-sm"><X size={16}/></button>
+                     </div>
+                     <div className="p-4 space-y-2 max-h-[250px] overflow-y-auto">
+                        {socials.map(social => (
+                          <a 
+                            key={social.id}
+                            href={social.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-700/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl transition-colors group"
+                          >
+                             <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center shadow-sm text-emerald-600 dark:text-emerald-400">
+                                   <DynamicIcon name={social.iconName} size={18} />
+                                </div>
+                                <span className="font-bold text-gray-800 dark:text-gray-100">{social.platform}</span>
+                             </div>
+                             <ExternalLink size={16} className="text-gray-400 group-hover:text-emerald-500"/>
+                          </a>
+                        ))}
+                     </div>
+                  </div>
+               </div>
+            )}
+
+            {/* Actions Footer */}
+            <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
+              <div className="flex flex-col sm:flex-row gap-3 relative">
+                {/* Main Buy Button */}
+                <button 
+                  onClick={handleContactClick}
+                  className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform active:scale-95 ${
+                    showContactMenu 
+                      ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5'
+                  }`}
+                >
+                  <MessageCircle size={20} />
+                  {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
+                </button>
+                
+                <button 
+                  onClick={handleCopyLink}
+                  className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all"
+                >
+                  {copied ? <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400"/> : <Copy size={20} />}
+                  {copied ? 'Đã sao chép' : 'Chia sẻ'}
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Full Description Popup Overlay */}
-      {showFullDesc && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200" onClick={() => setShowFullDesc(false)}>
-          <div className="bg-white dark:bg-gray-900 w-full max-w-3xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col relative animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-             <div className="flex items-center justify-between p-4 px-6 border-b border-gray-100 dark:border-gray-800">
-               <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                 <Info size={20} className="text-emerald-500"/> Chi tiết sản phẩm
-               </h3>
-               <button 
-                onClick={() => setShowFullDesc(false)} 
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors text-gray-500"
-               >
-                 <X size={24} />
-               </button>
-             </div>
-             
-             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar bg-gray-50 dark:bg-gray-950/50">
-               <div className="markdown-body text-gray-800 dark:text-gray-200 text-base leading-7">
-                  <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
-               </div>
-             </div>
-
-             <div className="p-4 border-t border-gray-100 dark:border-gray-800 text-center bg-white dark:bg-gray-900 rounded-b-2xl">
-               <button 
-                 onClick={() => setShowFullDesc(false)}
-                 className="px-8 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-500/20"
-               >
-                 Đóng
-               </button>
-             </div>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 

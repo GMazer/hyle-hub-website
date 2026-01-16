@@ -121,7 +121,7 @@ const LandingPage: React.FC = () => {
       <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
         
         {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-20 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-8 sticky top-16 z-30 bg-gray-950/95 backdrop-blur py-4 -mx-4 px-4 md:mx-0 md:px-0 rounded-b-xl border-b border-gray-800/50 md:border-none">
           
           {/* Categories */}
           <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar">
