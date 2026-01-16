@@ -174,7 +174,7 @@ const Products: React.FC = () => {
                       </div>
                     </td>
                     <td className="p-4 text-sm text-gray-600 dark:text-gray-400">{category?.name || <span className="text-red-400" title={`ID: ${product.categoryId}`}>Sai ID ({product.categoryId})</span>}</td>
-                    <td className="p-4 text-sm font-medium">{minPrice > 0 ? new Intl.NumberFormat('vi-VN').format(minPrice) + 'k' : '0k'}</td>
+                    <td className="p-4 text-sm font-medium">{minPrice > 0 ? new Intl.NumberFormat('vi-VN').format(minPrice) + 'K' : '0K'}</td>
                     <td className="p-4">
                       <span className={`px-2 py-1 text-xs rounded-full font-medium ${
                         product.status === 'published' 

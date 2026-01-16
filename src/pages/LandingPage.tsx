@@ -216,7 +216,7 @@ const LandingPage: React.FC = () => {
                     <div className="flex items-center gap-1.5 mt-0.5">
                        {minPrice > 0 ? (
                          <p className="text-[11px] text-gray-500 truncate group-hover:text-gray-400">
-                            Giá từ <span className="text-emerald-500 font-bold text-[13px]">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency}</span>
+                            Giá từ <span className="text-emerald-500 font-bold text-[13px]">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}</span>
                          </p>
                        ) : (
                          <p className="text-[11px] text-emerald-500 font-bold truncate">Liên hệ</p>
@@ -256,6 +256,7 @@ const LandingPage: React.FC = () => {
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
           siteConfig={config}
+          socials={socials}
           onClose={() => setSelectedProduct(null)} 
         />
       )}

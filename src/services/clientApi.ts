@@ -45,8 +45,8 @@ const FALLBACK_PRODUCTS: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     priceOptions: [
-      { id: 'p1', name: '1 Tháng (Dùng riêng)', price: 89000, currency: 'k', unit: 'tháng', description: 'Acc Private' },
-      { id: 'p2', name: 'ChatGPT Team (1 Tháng)', price: 150000, currency: 'k', unit: 'tháng', description: 'Bảo mật cao', isHighlight: true }
+      { id: 'p1', name: '1 Tháng (Dùng riêng)', price: 89000, currency: 'K', unit: 'tháng', description: 'Acc Private' },
+      { id: 'p2', name: 'ChatGPT Team (1 Tháng)', price: 150000, currency: 'K', unit: 'tháng', description: 'Bảo mật cao', isHighlight: true }
     ]
   },
   {
@@ -63,8 +63,8 @@ const FALLBACK_PRODUCTS: Product[] = [
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     priceOptions: [
-      { id: 'p4', name: '1 Tháng', price: 30000, currency: 'k', unit: 'tháng', isHighlight: false },
-      { id: 'p5', name: '1 Năm', price: 299000, currency: 'k', unit: 'năm', isHighlight: true }
+      { id: 'p4', name: '1 Tháng', price: 30000, currency: 'K', unit: 'tháng', isHighlight: false },
+      { id: 'p5', name: '1 Năm', price: 299000, currency: 'K', unit: 'năm', isHighlight: true }
     ]
   }
 ];

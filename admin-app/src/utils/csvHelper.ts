@@ -37,7 +37,7 @@ export const parseProductCSV = (csvText: string): Partial<Product>[] => {
       id: Math.random().toString(36).substr(2, 9),
       name: `Gói ${unit}`,
       price: price,
-      currency: 'k',
+      currency: 'K',
       unit: unit,
       isHighlight: false
     }] : [];

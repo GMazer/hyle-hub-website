@@ -51,6 +51,24 @@ class AdminApi {
     return res.json();
   }
 
+  async saveCategory(category: Category): Promise<Category> {
+    const res = await fetch(`${API_URL}/api/categories`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(category)
+    });
+    if (!res.ok) throw new Error('Failed to save category');
+    return res.json();
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    const res = await fetch(`${API_URL}/api/categories/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete category');
+  }
+
   // --- PRODUCTS ---
   async getProducts(): Promise<Product[]> {
     const res = await fetch(`${API_URL}/api/products`);

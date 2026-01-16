@@ -161,8 +161,22 @@ app.get('/api/categories', checkDb, async (req, res) => {
 app.post('/api/categories', requireAdmin, checkDb, async (req, res) => {
   try {
     const { id, ...data } = req.body;
-    const cat = await Category.findOneAndUpdate({ id }, data, { upsert: true, new: true });
+    // Generate ID if not provided (new category)
+    const finalId = id || Math.random().toString(36).substr(2, 9);
+    
+    const cat = await Category.findOneAndUpdate(
+      { id: finalId }, 
+      { ...data, id: finalId }, 
+      { upsert: true, new: true }
+    );
     res.json(cat);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/categories/:id', requireAdmin, checkDb, async (req, res) => {
+  try {
+    await Category.findOneAndDelete({ id: req.params.id });
+    res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

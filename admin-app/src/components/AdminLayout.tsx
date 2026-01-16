@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Package, LogOut, ExternalLink, Moon, Sun } from 'lucide-react';
+import { LayoutGrid, Package, LogOut, Moon, Sun, List } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem('theme') === 'dark';
+    return localStorage.getItem('theme') === 'dark' || document.documentElement.classList.contains('dark');
   });
 
   useEffect(() => {
@@ -22,16 +22,17 @@ const AdminLayout: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
-    navigate('/login');
+    navigate('/admin/login');
   };
 
   const navItems = [
-    { path: '/', icon: LayoutGrid, label: 'Tổng quan' },
-    { path: '/products', icon: Package, label: 'Sản phẩm' },
+    { path: '/admin', icon: LayoutGrid, label: 'Tổng quan', end: true },
+    { path: '/admin/categories', icon: List, label: 'Danh mục' },
+    { path: '/admin/products', icon: Package, label: 'Sản phẩm' },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex text-gray-900 dark:text-gray-100 transition-colors duration-200 font-sans">
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-gray-900 border-r border-emerald-100 dark:border-gray-800 hidden md:flex flex-col fixed inset-y-0 transition-colors duration-200">
         <div className="p-6 border-b border-emerald-100 dark:border-gray-800 flex justify-between items-center">
@@ -42,6 +43,7 @@ const AdminLayout: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.end}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive 
@@ -57,7 +59,6 @@ const AdminLayout: React.FC = () => {
         </nav>
         
         <div className="p-4 border-t border-emerald-100 dark:border-gray-800 space-y-2">
-          {/* Dark Mode Toggle */}
           <button 
             onClick={toggleTheme}
             className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"

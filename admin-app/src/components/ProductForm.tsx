@@ -42,7 +42,7 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
       id: Math.random().toString(36).substr(2, 9),
       name: 'Gói chuẩn',
       price: 0,
-      currency: 'k',
+      currency: 'K',
       unit: 'tháng',
       isHighlight: false
     };
