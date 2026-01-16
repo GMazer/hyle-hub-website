@@ -67,6 +67,16 @@ class AdminApi {
     return res.json();
   }
 
+  async bulkCreateProducts(products: Partial<Product>[]): Promise<{ success: boolean, count: number }> {
+    const res = await fetch(`${API_URL}/api/products/bulk`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(products)
+    });
+    if (!res.ok) throw new Error('Failed to import products');
+    return res.json();
+  }
+
   async deleteProduct(id: string): Promise<void> {
     const res = await fetch(`${API_URL}/api/products/${id}`, {
       method: 'DELETE',

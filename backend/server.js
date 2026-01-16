@@ -12,7 +12,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // Increase limit for bulk upload
 
 // --- LOGGER MIDDLEWARE ---
 app.use((req, res, next) => {
@@ -194,6 +194,7 @@ app.get('/api/products', checkDb, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// Single Create/Update
 app.post('/api/products', requireAdmin, checkDb, async (req, res) => {
   try {
     const { id, ...data } = req.body;
@@ -206,6 +207,30 @@ app.post('/api/products', requireAdmin, checkDb, async (req, res) => {
     );
     res.json(product);
   } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Bulk Import
+app.post('/api/products/bulk', requireAdmin, checkDb, async (req, res) => {
+  try {
+    const rawItems = req.body;
+    if (!Array.isArray(rawItems)) {
+      return res.status(400).json({ error: "Dữ liệu gửi lên phải là danh sách (Array)." });
+    }
+
+    // Prepare data with IDs
+    const productsToInsert = rawItems.map(item => ({
+      ...item,
+      id: item.id || Math.random().toString(36).substr(2, 9),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
+
+    await Product.insertMany(productsToInsert);
+    res.json({ success: true, count: productsToInsert.length });
+  } catch (e) { 
+    console.error(e);
+    res.status(500).json({ error: e.message }); 
+  }
 });
 
 app.delete('/api/products/:id', requireAdmin, checkDb, async (req, res) => {

@@ -101,6 +101,25 @@ export const INITIAL_PRODUCTS: Product[] = [
     priceOptions: [
       { id: 'p6', name: '1 Năm (Dùng riêng)', price: 70000, currency: 'k', unit: 'năm', isHighlight: true }
     ]
+  },
+  {
+    id: '105',
+    name: 'Adobe Creative Cloud (All Apps)',
+    slug: 'adobe-creative-cloud',
+    categoryId: '3',
+    status: 'published',
+    thumbnailUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Adobe_Creative_Cloud_rainbow_icon.svg/1024px-Adobe_Creative_Cloud_rainbow_icon.svg.png',
+    galleryUrls: [],
+    shortDescription: 'Full bộ ứng dụng Adobe: Photoshop, Illustrator, Premiere...',
+    fullDescription: '✅ Gói All Apps 20+ ứng dụng (Photoshop, AI, Pr, Ae...)\n✅ Kích hoạt chính chủ email cá nhân\n✅ 100GB - 1TB Cloud Storage\n✅ Sử dụng Full tính năng AI (Generative Fill)',
+    tags: ['Thiết kế', 'Adobe', 'Editor'],
+    notes: 'Bảo hành full thời gian sử dụng',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    priceOptions: [
+      { id: 'adobe1', name: '1 Tháng', price: 95000, currency: 'k', unit: 'tháng', isHighlight: false, description: 'Gói dùng thử' },
+      { id: 'adobe2', name: '1 Năm (Giá Sốc)', price: 990000, currency: 'k', unit: 'năm', isHighlight: true, description: 'Tiết kiệm 80%' }
+    ]
   }
 ];
 
