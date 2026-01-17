@@ -12,11 +12,10 @@ import * as RiveCanvasModule from '@rive-app/canvas';
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
 const { Layout, Fit, Alignment } = RiveCanvas;
 
-// Helper function to return a path that works in dev and when deployed with a base URL.
+// Helper function to return a bundled asset path that works in dev and production.
 const getRivePath = () => {
-  const baseUrl = import.meta.env.BASE_URL ?? '/';
-  const riveUrl = new URL(`${baseUrl}galaxy.riv`, window.location.origin).toString();
-  console.log(`[GalaxyRive] Using base URL '${baseUrl}' -> ${riveUrl}`);
+  const riveUrl = new URL('../assets/galaxy.riv', import.meta.url).toString();
+  console.log(`[GalaxyRive] Using bundled asset URL -> ${riveUrl}`);
   return riveUrl;
 };
 
