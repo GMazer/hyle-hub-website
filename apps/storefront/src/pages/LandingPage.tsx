@@ -53,13 +53,19 @@ const GalaxyRive = () => {
 
     const loadRive = async () => {
       try {
-        const response = await fetch(riveUrl);
+        const response = await fetch(riveUrl, { cache: 'no-store' });
         if (!response.ok) {
           throw new Error(`Rive fetch failed (${response.status})`);
         }
         const arrayBuffer = await response.arrayBuffer();
+        const header = new TextDecoder().decode(new Uint8Array(arrayBuffer.slice(0, 4)));
+        if (header !== 'RIVE') {
+          throw new Error(
+            `Invalid Rive header '${header}'. Content-Type: ${response.headers.get('content-type') ?? 'unknown'}`,
+          );
+        }
         if (!cancelled) {
-          setBuffer(arrayBuffer);
+          setBuffer(arrayBuffer.slice(0));
         }
       } catch (error) {
         console.error('[GalaxyRive] Failed to fetch Rive file', error);
