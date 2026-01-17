@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
 import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-react';
@@ -20,10 +20,13 @@ const getRivePath = () => {
   return riveUrl;
 };
 
-// Helper component for Rive Animation
-const GalaxyRive = () => {
+type GalaxyRiveCanvasProps = {
+  buffer: ArrayBuffer;
+};
+
+const GalaxyRiveCanvas: React.FC<GalaxyRiveCanvasProps> = ({ buffer }) => {
   const { RiveComponent } = useRive({
-    src: getRivePath(), 
+    buffer,
     autoplay: true,
     layout: new Layout({
       fit: Fit.Cover,
@@ -38,6 +41,43 @@ const GalaxyRive = () => {
       <RiveComponent className="w-full h-full block" />
     </div>
   );
+};
+
+// Helper component for Rive Animation
+const GalaxyRive = () => {
+  const riveUrl = useMemo(() => getRivePath(), []);
+  const [buffer, setBuffer] = useState<ArrayBuffer | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRive = async () => {
+      try {
+        const response = await fetch(riveUrl);
+        if (!response.ok) {
+          throw new Error(`Rive fetch failed (${response.status})`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        if (!cancelled) {
+          setBuffer(arrayBuffer);
+        }
+      } catch (error) {
+        console.error('[GalaxyRive] Failed to fetch Rive file', error);
+      }
+    };
+
+    loadRive();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [riveUrl]);
+
+  if (!buffer) {
+    return null;
+  }
+
+  return <GalaxyRiveCanvas buffer={buffer} />;
 };
 
 // Helper component for drawing stars (CSS Fallback/Overlay)
