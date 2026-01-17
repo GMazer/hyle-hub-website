@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, PriceOption } from '../types';
-import { Plus, Trash2, Save, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Upload } from 'lucide-react';
 import { adminApi } from '../services/api';
 
 interface Props {
@@ -27,6 +27,7 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (product) setFormData(product);
@@ -35,6 +36,22 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (content) {
+        setFormData(prev => ({ ...prev, fullDescription: content }));
+      }
+    };
+    reader.readAsText(file);
+    // Reset so the same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleAddPrice = () => {
@@ -165,7 +182,23 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
              <input type="text" name="shortDescription" value={formData.shortDescription} onChange={handleChange} className={inputClass} placeholder="Mô tả ngắn gọn..." />
           </div>
           <div>
-             <label className={labelClass}>Mô tả chi tiết</label>
+             <div className="flex justify-between items-center mb-1">
+                <label className={labelClass}>Mô tả chi tiết</label>
+                <button 
+                  type="button" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors font-medium"
+                >
+                  <Upload size={14} /> Tải file Markdown
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileUpload} 
+                  className="hidden" 
+                  accept=".md,.txt"
+                />
+             </div>
              <textarea rows={5} name="fullDescription" value={formData.fullDescription} onChange={handleChange} className={inputClass} placeholder="- Dòng 1&#10;- Dòng 2..." />
           </div>
           <div>
