@@ -63,6 +63,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
 
         <div className="flex flex-col md:flex-row h-full overflow-hidden">
           {/* Left: Single Main Image */}
+          {/* Mobile: reduced padding and aspect-video to save vertical space. Desktop: aspect-square */}
           <div className="w-full md:w-5/12 bg-emerald-50/50 dark:bg-gray-800/50 p-4 md:p-8 flex items-center justify-center shrink-0">
             <div className="w-full aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
               <img 
@@ -74,6 +75,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
           </div>
 
           {/* Right: Info */}
+          {/* Use flex-1 instead of h-full to allow correct resizing in column layout */}
           <div className="w-full md:w-7/12 flex-1 flex flex-col min-h-0 overflow-hidden relative">
             <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar min-h-0">
               <div className="flex flex-wrap gap-2 mb-4">
@@ -121,10 +123,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 flex items-center gap-2">
                      <Info size={16} className="text-emerald-500"/> Thông tin chi tiết
                    </h3>
+                   {/* Increased max-height significantly to support very long content */}
                    <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.fullDescription}</ReactMarkdown>
                      </div>
+                     {/* Gradient overlay when collapsed */}
                      {!isDescExpanded && (
                        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-800 via-gray-50/80 dark:via-gray-800/80 to-transparent flex items-end justify-center pb-2 cursor-pointer" onClick={() => setIsDescExpanded(true)}>
                        </div>
@@ -153,32 +157,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
               )}
             </div>
 
-            {/* Actions Footer */}
-            <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
-              <div className="flex flex-col sm:flex-row gap-3 relative">
-                <button 
-                  onClick={handleContactClick}
-                  className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform active:scale-95 ${
-                    showContactMenu 
-                      ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5'
-                  }`}
-                >
-                  <MessageCircle size={20} />
-                  {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
-                </button>
-                
-                <button 
-                  onClick={handleCopyLink}
-                  className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all"
-                >
-                  {copied ? <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400"/> : <Copy size={20} />}
-                  {copied ? 'Đã sao chép' : 'Chia sẻ'}
-                </button>
-              </div>
-            </div>
-            
-            {/* Contact Menu Overlay */}
+            {/* SLIDE UP CONTACT MENU OVERLAY */}
             {showContactMenu && (
                <div className="absolute bottom-0 left-0 w-full z-30 animate-in slide-in-from-bottom duration-300">
                   <div className="bg-white dark:bg-gray-800 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] border-t border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -208,6 +187,32 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                   </div>
                </div>
             )}
+
+            {/* Actions Footer */}
+            <div className="p-6 md:p-8 pt-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 z-20">
+              <div className="flex flex-col sm:flex-row gap-3 relative">
+                {/* Main Buy Button */}
+                <button 
+                  onClick={handleContactClick}
+                  className={`flex-1 flex items-center justify-center gap-2 font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none transform active:scale-95 ${
+                    showContactMenu 
+                      ? 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300' 
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white hover:-translate-y-0.5'
+                  }`}
+                >
+                  <MessageCircle size={20} />
+                  {showContactMenu ? 'Đóng tuỳ chọn' : 'Liên hệ mua ngay'}
+                </button>
+                
+                <button 
+                  onClick={handleCopyLink}
+                  className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-emerald-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-2 border-gray-100 dark:border-gray-600 font-bold py-3.5 px-6 rounded-xl transition-all"
+                >
+                  {copied ? <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400"/> : <Copy size={20} />}
+                  {copied ? 'Đã sao chép' : 'Chia sẻ'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
