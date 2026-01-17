@@ -65,7 +65,13 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
         // 6. Strip links but keep text: [text](url) -> text
         content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
 
-        // 7. Cleanup excessive newlines (max 2)
+        // 7. Remove img tags completely
+        content = content.replace(/<img[^>]*>/gi, '');
+
+        // 8. Remove span tags but keep content
+        content = content.replace(/<\/?span[^>]*>/gi, '');
+
+        // 9. Cleanup excessive newlines (max 2)
         content = content.replace(/\n{3,}/g, '\n\n').trim();
 
         setFormData(prev => ({ ...prev, fullDescription: content }));
