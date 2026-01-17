@@ -203,8 +203,8 @@ const LandingPage: React.FC = () => {
                 {/* Bottom: Info Bar */}
                 <div className="bg-gray-950 p-3.5 flex items-center gap-3 border-t border-gray-800 group-hover:border-gray-700 transition-colors">
                   {/* Mini Icon */}
-                  <div className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0 group-hover:bg-gray-700 transition-colors">
-                     <img src={product.thumbnailUrl} alt="" className="w-5 h-5 object-contain" />
+                  <div className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 shrink-0 group-hover:bg-gray-700 transition-colors overflow-hidden">
+                     <img src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                   </div>
                   
                   {/* Text */}
