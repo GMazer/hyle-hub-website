@@ -3,6 +3,7 @@ import { Product, SiteConfig, SocialLink } from '../../types';
 import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ProductModalProps {
   product: Product;
@@ -125,7 +126,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    {/* Increased max-height significantly to support very long content */}
                    <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
-                       <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
+                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                         {product.fullDescription}
+                       </ReactMarkdown>
                      </div>
                      {/* Gradient overlay when collapsed */}
                      {!isDescExpanded && (
