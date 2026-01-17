@@ -46,7 +46,9 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
     reader.onload = (event) => {
       const content = event.target?.result as string;
       if (content) {
-        setFormData(prev => ({ ...prev, fullDescription: content }));
+        // Regex to remove citations like [^1], [^1_15], etc.
+        const cleanContent = content.replace(/\[\^.*?\]/g, '');
+        setFormData(prev => ({ ...prev, fullDescription: cleanContent }));
       }
     };
     reader.readAsText(file);

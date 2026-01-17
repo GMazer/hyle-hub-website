@@ -122,7 +122,8 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 flex items-center gap-2">
                      <Info size={16} className="text-emerald-500"/> Thông tin chi tiết
                    </h3>
-                   <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[1000px]' : 'max-h-[100px]'}`}>
+                   {/* Increased max-height significantly to support very long content */}
+                   <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
                        <ReactMarkdown>{product.fullDescription}</ReactMarkdown>
                      </div>
