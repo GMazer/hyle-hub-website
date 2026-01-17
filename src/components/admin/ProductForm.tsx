@@ -44,11 +44,18 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target?.result as string;
+      let content = event.target?.result as string;
       if (content) {
-        // Regex to remove citations like [^1], [^1_15], etc.
-        const cleanContent = content.replace(/\[\^.*?\]/g, '');
-        setFormData(prev => ({ ...prev, fullDescription: cleanContent }));
+        // 1. Remove footnotes/citations like [^1], [^1_15]
+        content = content.replace(/\[\^.*?\]/g, '');
+        // 2. Remove ChatGPT style citations like 【1:0†source】
+        content = content.replace(/【.*?】/g, '');
+        // 3. Remove numeric citations like [1], [12]
+        content = content.replace(/\[\d+\]/g, '');
+        // 4. Strip links but keep text: [text](url) -> text
+        content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        
+        setFormData(prev => ({ ...prev, fullDescription: content }));
       }
     };
     reader.readAsText(file);
