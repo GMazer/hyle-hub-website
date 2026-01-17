@@ -179,7 +179,7 @@ const LandingPage: React.FC = () => {
                 className="group relative flex flex-col bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-emerald-500/50 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-900/10 hover:-translate-y-1"
               >
                 {/* Top: Image/Logo Area */}
-                <div className="aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 p-6 flex items-center justify-center relative overflow-hidden">
+                <div className="aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 p-3 flex items-center justify-center relative overflow-hidden">
                    {/* Glow effect behind logo */}
                    <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 radial-gradient"></div>
                    
@@ -203,8 +203,8 @@ const LandingPage: React.FC = () => {
                 {/* Bottom: Info Bar */}
                 <div className="bg-gray-950 p-3.5 flex items-center gap-3 border-t border-gray-800 group-hover:border-gray-700 transition-colors">
                   {/* Mini Icon */}
-                  <div className="w-8 h-8 rounded-lg bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0 group-hover:bg-gray-700 transition-colors">
-                     <img src={product.thumbnailUrl} alt="" className="w-5 h-5 object-contain" />
+                  <div className="w-8 h-8 rounded overflow-hidden shrink-0">
+                     <img src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                   </div>
                   
                   {/* Text */}
