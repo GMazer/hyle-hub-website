@@ -13,10 +13,14 @@ export default defineConfig({
     port: 3000
   },
   root: '.',
+  assetsInclude: ['**/*.riv'],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'apps/storefront/src'),
     },
+  },
+  optimizeDeps: {
+    include: ['@rive-app/react-canvas', '@rive-app/canvas']
   },
   build: {
     rollupOptions: {
