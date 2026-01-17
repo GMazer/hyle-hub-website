@@ -2,7 +2,7 @@
 <html lang="vi" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logohylehub.svg" />
+    <link rel="icon" type="image/svg+xml" href="/public/logohylehub.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark">
     <title>HyleHub Store</title>
@@ -144,15 +144,13 @@
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
     "path": "https://esm.sh/path@^0.12.7",
     "react-markdown": "https://esm.sh/react-markdown@9.0.1",
-    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0",
-    "url": "https://esm.sh/url@^0.11.4"
+    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
   }
 }
 </script>
 </head>
   <body class="bg-gray-950 text-gray-100 transition-colors duration-200 selection:bg-emerald-900">
     <div id="root"></div>
-    <!-- Point to the Storefront App entry directly -->
-    <script type="module" src="./apps/storefront/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>
