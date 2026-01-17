@@ -13,6 +13,11 @@ export default defineConfig({
     port: 3000
   },
   root: '.',
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'apps/storefront/src'),
+    },
+  },
   build: {
     rollupOptions: {
       input: {
