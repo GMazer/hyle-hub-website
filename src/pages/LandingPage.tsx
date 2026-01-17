@@ -69,13 +69,14 @@ const LandingPage: React.FC = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <div className="relative bg-gray-900 border-b border-gray-800 overflow-hidden">
-        {/* Abstract background decorative elements */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Hero Section with Animated Background */}
+      <div className="relative bg-gray-950 border-b border-gray-800 overflow-hidden">
+        {/* Animated Background Blobs */}
+        <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob pointer-events-none"></div>
+        <div className="absolute top-0 -right-4 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
+        <div className="absolute -bottom-8 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000 pointer-events-none"></div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center z-10">
           <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-6 drop-shadow-xl flex flex-col items-center gap-4">
             <Logo className="h-24 w-24 md:h-32 md:w-32 shadow-2xl shadow-emerald-500/20" />
             {config.siteName}
@@ -179,14 +180,12 @@ const LandingPage: React.FC = () => {
                 className="group relative flex flex-col bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-emerald-500/50 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-900/10 hover:-translate-y-1"
               >
                 {/* Top: Image/Logo Area */}
-                <div className="aspect-[16/10] bg-gradient-to-br from-gray-800 to-gray-900 p-3 flex items-center justify-center relative overflow-hidden">
-                   {/* Glow effect behind logo */}
-                   <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 radial-gradient"></div>
-                   
+                <div className="aspect-[16/10] bg-gray-900 flex items-center justify-center relative overflow-hidden">
+                   {/* Removed padding (p-3) and changed object-contain to object-cover */}
                    <img 
                     src={product.thumbnailUrl} 
                     alt={product.name}
-                    className="w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-110 relative z-10"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 relative z-10"
                     loading="lazy"
                   />
                   
@@ -201,24 +200,25 @@ const LandingPage: React.FC = () => {
                 </div>
 
                 {/* Bottom: Info Bar */}
-                <div className="bg-gray-950 p-3.5 flex items-center gap-3 border-t border-gray-800 group-hover:border-gray-700 transition-colors">
+                <div className="bg-gray-950 p-4 flex items-center gap-3 border-t border-gray-800 group-hover:border-gray-700 transition-colors">
                   {/* Mini Icon */}
-                  <div className="w-8 h-8 rounded overflow-hidden shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-gray-800 border border-gray-700 shrink-0 group-hover:bg-gray-700 transition-colors overflow-hidden">
                      <img src={product.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                   </div>
                   
                   {/* Text */}
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-gray-200 group-hover:text-emerald-400 truncate transition-colors">
+                    {/* Increased font size to text-base */}
+                    <h3 className="text-base font-bold text-gray-100 group-hover:text-emerald-400 truncate transition-colors">
                       {product.name}
                     </h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="flex items-center gap-1.5 mt-1">
                        {minPrice > 0 ? (
-                         <p className="text-[11px] text-gray-500 truncate group-hover:text-gray-400">
-                            Giá từ <span className="text-emerald-500 font-bold text-[13px]">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}</span>
+                         <p className="text-xs text-gray-500 truncate group-hover:text-gray-400">
+                            Giá từ <span className="text-emerald-500 font-bold text-base">{new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}</span>
                          </p>
                        ) : (
-                         <p className="text-[11px] text-emerald-500 font-bold truncate">Liên hệ</p>
+                         <p className="text-xs text-emerald-500 font-bold truncate">Liên hệ</p>
                        )}
                     </div>
                   </div>
