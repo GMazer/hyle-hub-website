@@ -12,23 +12,12 @@ import * as RiveCanvasModule from '@rive-app/canvas';
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
 const { Layout, Fit, Alignment } = RiveCanvas;
 
-// Helper function to detect environment and return correct path
+// Helper function to return a path that works in dev and when deployed with a base URL.
 const getRivePath = () => {
-  // Check for WebStorm built-in server (port 63342) or explicit index.html in path
-  // WebStorm serves from the project root directory.
-  const isWebStormLocal = window.location.port === '63342' || window.location.pathname.includes('index.html');
-  
-  // If WebStorm, path must be 'public/galaxy.riv' relative to project root.
-  if (isWebStormLocal) {
-    console.log("[GalaxyRive] Environment: WebStorm/Static. Using 'public/galaxy.riv'");
-    return 'public/galaxy.riv';
-  }
-
-  // If Vite (Dev or Prod), 'public' folder contents are served at root '/'.
-  // Using absolute path ensures we don't get messed up by sub-routes.
-  // Note: Ensure 'galaxy.riv' exists in your 'public' folder!
-  console.log("[GalaxyRive] Environment: Vite/Standard. Using '/galaxy.riv'");
-  return '/galaxy.riv';
+  const baseUrl = import.meta.env.BASE_URL ?? '/';
+  const riveUrl = new URL(`${baseUrl}galaxy.riv`, window.location.origin).toString();
+  console.log(`[GalaxyRive] Using base URL '${baseUrl}' -> ${riveUrl}`);
+  return riveUrl;
 };
 
 // Helper component for Rive Animation
