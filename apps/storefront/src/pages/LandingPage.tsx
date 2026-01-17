@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
 import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-react';
@@ -12,18 +12,21 @@ import * as RiveCanvasModule from '@rive-app/canvas';
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
 const { Layout, Fit, Alignment } = RiveCanvas;
 
-// Helper function to return a path that works in dev and when deployed with a base URL.
+// Helper function to return a bundled asset path that works in dev and production.
 const getRivePath = () => {
   const baseUrl = import.meta.env.BASE_URL ?? '/';
   const riveUrl = new URL(`${baseUrl}galaxy.riv`, window.location.origin).toString();
-  console.log(`[GalaxyRive] Using base URL '${baseUrl}' -> ${riveUrl}`);
+  console.log(`[GalaxyRive] Using public asset URL -> ${riveUrl}`);
   return riveUrl;
 };
 
-// Helper component for Rive Animation
-const GalaxyRive = () => {
+type GalaxyRiveCanvasProps = {
+  buffer: Uint8Array;
+};
+
+const GalaxyRiveCanvas: React.FC<GalaxyRiveCanvasProps> = ({ buffer }) => {
   const { RiveComponent } = useRive({
-    src: getRivePath(), 
+    buffer,
     autoplay: true,
     layout: new Layout({
       fit: Fit.Cover,
@@ -38,6 +41,49 @@ const GalaxyRive = () => {
       <RiveComponent className="w-full h-full block" />
     </div>
   );
+};
+
+// Helper component for Rive Animation
+const GalaxyRive = () => {
+  const riveUrl = useMemo(() => getRivePath(), []);
+  const [buffer, setBuffer] = useState<Uint8Array | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadRive = async () => {
+      try {
+        const response = await fetch(riveUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Rive fetch failed (${response.status})`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const header = new TextDecoder().decode(new Uint8Array(arrayBuffer.slice(0, 4)));
+        if (header !== 'RIVE') {
+          throw new Error(
+            `Invalid Rive header '${header}'. Content-Type: ${response.headers.get('content-type') ?? 'unknown'}`,
+          );
+        }
+        if (!cancelled) {
+          setBuffer(new Uint8Array(arrayBuffer));
+        }
+      } catch (error) {
+        console.error('[GalaxyRive] Failed to fetch Rive file', error);
+      }
+    };
+
+    loadRive();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [riveUrl]);
+
+  if (!buffer) {
+    return null;
+  }
+
+  return <GalaxyRiveCanvas buffer={buffer} />;
 };
 
 // Helper component for drawing stars (CSS Fallback/Overlay)
