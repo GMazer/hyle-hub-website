@@ -13,31 +13,132 @@ interface ProductModalProps {
   onClose: () => void;
 }
 
-const normalizeMarkdownTables = (markdown: string) =>
-  markdown
-    .split('\n')
-    .map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed.includes('|')) return line;
-      if (!/^[\s|:-]+$/.test(trimmed)) return line;
+type TableAlignment = 'left' | 'center' | 'right';
 
-      const cells = line.split('|');
-      if (cells.length < 3) return line;
+type MarkdownSegment =
+  | { type: 'markdown'; content: string }
+  | { type: 'table'; header: string[]; rows: string[][]; alignments: TableAlignment[] };
 
-      const normalizedCells = cells.map((cell, index) => {
-        if (index === 0 || index === cells.length - 1) return cell;
+const splitTableRow = (line: string) =>
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((cell) => cell.trim());
 
-        const content = cell.trim();
-        const hasLeftAlign = content.startsWith(':');
-        const hasRightAlign = content.endsWith(':');
-        const dashCount = (content.match(/-/g) || []).length;
-        const dashes = '-'.repeat(Math.max(3, dashCount));
-        return ` ${hasLeftAlign ? ':' : ''}${dashes}${hasRightAlign ? ':' : ''} `;
-      });
+const parseAlignmentRow = (line: string, columnCount: number): TableAlignment[] => {
+  const cells = splitTableRow(line);
+  const alignments = cells.map((cell) => {
+    const trimmed = cell.trim();
+    const hasLeftAlign = trimmed.startsWith(':');
+    const hasRightAlign = trimmed.endsWith(':');
+    if (hasLeftAlign && hasRightAlign) return 'center';
+    if (hasRightAlign) return 'right';
+    return 'left';
+  });
+  while (alignments.length < columnCount) {
+    alignments.push('left');
+  }
+  return alignments.slice(0, columnCount);
+};
 
-      return normalizedCells.join('|');
-    })
-    .join('\n');
+const isSeparatorRow = (line: string) => {
+  const trimmed = line.trim();
+  return trimmed.includes('|') && /^[\s|:-]+$/.test(trimmed) && trimmed.includes('-');
+};
+
+const splitMarkdownWithTables = (markdown: string): MarkdownSegment[] => {
+  const lines = markdown.split('\n');
+  const segments: MarkdownSegment[] = [];
+  let buffer: string[] = [];
+  let index = 0;
+
+  const flushBuffer = () => {
+    if (buffer.length === 0) return;
+    const content = buffer.join('\n');
+    if (content.trim().length > 0) {
+      segments.push({ type: 'markdown', content });
+    }
+    buffer = [];
+  };
+
+  while (index < lines.length) {
+    const line = lines[index];
+    const nextLine = lines[index + 1] ?? '';
+
+    const hasHeaderPipes = (line.match(/\|/g) || []).length >= 2;
+    if (hasHeaderPipes && isSeparatorRow(nextLine)) {
+      flushBuffer();
+
+      const header = splitTableRow(line);
+      const alignments = parseAlignmentRow(nextLine, header.length);
+
+      const rows: string[][] = [];
+      let rowIndex = index + 2;
+      while (rowIndex < lines.length) {
+        const rowLine = lines[rowIndex];
+        if (!rowLine.trim() || (rowLine.match(/\|/g) || []).length < 2) break;
+        const rowCells = splitTableRow(rowLine);
+        while (rowCells.length < header.length) {
+          rowCells.push('');
+        }
+        rows.push(rowCells.slice(0, header.length));
+        rowIndex += 1;
+      }
+
+      segments.push({ type: 'table', header, rows, alignments });
+      index = rowIndex;
+      continue;
+    }
+
+    buffer.push(line);
+    index += 1;
+  }
+
+  flushBuffer();
+  return segments;
+};
+
+const renderMarkdownWithTables = (markdown: string) =>
+  splitMarkdownWithTables(markdown).map((segment, segmentIndex) => {
+    if (segment.type === 'table') {
+      return (
+        <table key={`table-${segmentIndex}`}>
+          <thead>
+            <tr>
+              {segment.header.map((cell, cellIndex) => (
+                <th key={`header-${segmentIndex}-${cellIndex}`} style={{ textAlign: segment.alignments[cellIndex] }}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: 'span' }}>
+                    {cell}
+                  </ReactMarkdown>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {segment.rows.map((row, rowIndex) => (
+              <tr key={`row-${segmentIndex}-${rowIndex}`}>
+                {row.map((cell, cellIndex) => (
+                  <td key={`cell-${segmentIndex}-${rowIndex}-${cellIndex}`} style={{ textAlign: segment.alignments[cellIndex] }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ p: 'span' }}>
+                      {cell}
+                    </ReactMarkdown>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    return (
+      <ReactMarkdown key={`markdown-${segmentIndex}`} remarkPlugins={[remarkGfm]}>
+        {segment.content}
+      </ReactMarkdown>
+    );
+  });
 
 const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, socials = [], isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
@@ -149,9 +250,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    </h3>
                    <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
-                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                         {normalizeMarkdownTables(product.fullDescription)}
-                       </ReactMarkdown>
+                       {renderMarkdownWithTables(product.fullDescription)}
                      </div>
                      {!isDescExpanded && (
                        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-800 via-gray-50/80 dark:via-gray-800/80 to-transparent flex items-end justify-center pb-2 cursor-pointer" onClick={() => setIsDescExpanded(true)}>
