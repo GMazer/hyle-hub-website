@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Product, SiteConfig, SocialLink } from '../../types';
 import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { Markdown } from '../Markdown';
 
 interface ProductModalProps {
   product: Product;
@@ -123,7 +122,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    </h3>
                    <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
-                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.fullDescription}</ReactMarkdown>
+                       <Markdown>{product.fullDescription}</Markdown>
                      </div>
                      {!isDescExpanded && (
                        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-800 via-gray-50/80 dark:via-gray-800/80 to-transparent flex items-end justify-center pb-2 cursor-pointer" onClick={() => setIsDescExpanded(true)}>
