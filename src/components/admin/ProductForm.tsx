@@ -48,13 +48,26 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
       if (content) {
         // 1. Remove footnotes/citations like [^1], [^1_15]
         content = content.replace(/\[\^.*?\]/g, '');
+        
         // 2. Remove ChatGPT style citations like 【1:0†source】
         content = content.replace(/【.*?】/g, '');
+        
         // 3. Remove numeric citations like [1], [12]
         content = content.replace(/\[\d+\]/g, '');
-        // 4. Strip links but keep text: [text](url) -> text
-        content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
         
+        // 4. Remove lines that are just URLs or source references starting with :
+        // Matches ": https://..." or "https://..." on a line by itself
+        content = content.replace(/^\s*:?\s*https?:\/\/.+$/gm, '');
+
+        // 5. Remove specific AI separators like <div align="center">...</div>
+        content = content.replace(/<div align="center">.*?<\/div>/gs, '');
+        
+        // 6. Strip links but keep text: [text](url) -> text
+        content = content.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+
+        // 7. Cleanup excessive newlines (max 2)
+        content = content.replace(/\n{3,}/g, '\n\n').trim();
+
         setFormData(prev => ({ ...prev, fullDescription: content }));
       }
     };
