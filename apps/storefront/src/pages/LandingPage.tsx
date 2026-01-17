@@ -7,6 +7,7 @@ import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
 import { useRive } from '@rive-app/react-canvas';
 import * as RiveCanvasModule from '@rive-app/canvas';
+import galaxyRivUrl from '../assets/galaxy.riv?url';
 
 // Safely extract classes whether they are on default or named exports
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
@@ -14,9 +15,8 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 
 // Helper function to return a bundled asset path that works in dev and production.
 const getRivePath = () => {
-  const riveUrl = new URL('../assets/galaxy.riv', import.meta.url).toString();
-  console.log(`[GalaxyRive] Using bundled asset URL -> ${riveUrl}`);
-  return riveUrl;
+  console.log(`[GalaxyRive] Using bundled asset URL -> ${galaxyRivUrl}`);
+  return galaxyRivUrl;
 };
 
 // Helper component for Rive Animation
