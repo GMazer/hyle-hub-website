@@ -21,7 +21,7 @@ const getRivePath = () => {
 };
 
 type GalaxyRiveCanvasProps = {
-  buffer: ArrayBuffer;
+  buffer: Uint8Array;
 };
 
 const GalaxyRiveCanvas: React.FC<GalaxyRiveCanvasProps> = ({ buffer }) => {
@@ -46,7 +46,7 @@ const GalaxyRiveCanvas: React.FC<GalaxyRiveCanvasProps> = ({ buffer }) => {
 // Helper component for Rive Animation
 const GalaxyRive = () => {
   const riveUrl = useMemo(() => getRivePath(), []);
-  const [buffer, setBuffer] = useState<ArrayBuffer | null>(null);
+  const [buffer, setBuffer] = useState<Uint8Array | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,7 +65,7 @@ const GalaxyRive = () => {
           );
         }
         if (!cancelled) {
-          setBuffer(arrayBuffer.slice(0));
+          setBuffer(new Uint8Array(arrayBuffer));
         }
       } catch (error) {
         console.error('[GalaxyRive] Failed to fetch Rive file', error);
