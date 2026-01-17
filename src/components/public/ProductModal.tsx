@@ -13,6 +13,32 @@ interface ProductModalProps {
   onClose: () => void;
 }
 
+const normalizeMarkdownTables = (markdown: string) =>
+  markdown
+    .split('\n')
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed.includes('|')) return line;
+      if (!/^[\s|:-]+$/.test(trimmed)) return line;
+
+      const cells = line.split('|');
+      if (cells.length < 3) return line;
+
+      const normalizedCells = cells.map((cell, index) => {
+        if (index === 0 || index === cells.length - 1) return cell;
+
+        const content = cell.trim();
+        const hasLeftAlign = content.startsWith(':');
+        const hasRightAlign = content.endsWith(':');
+        const dashCount = (content.match(/-/g) || []).length;
+        const dashes = '-'.repeat(Math.max(3, dashCount));
+        return ` ${hasLeftAlign ? ':' : ''}${dashes}${hasRightAlign ? ':' : ''} `;
+      });
+
+      return normalizedCells.join('|');
+    })
+    .join('\n');
+
 const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, socials = [], isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [showContactMenu, setShowContactMenu] = useState(false);
@@ -124,7 +150,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                    <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
                      <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                         {product.fullDescription}
+                         {normalizeMarkdownTables(product.fullDescription)}
                        </ReactMarkdown>
                      </div>
                      {!isDescExpanded && (
