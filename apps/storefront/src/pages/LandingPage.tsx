@@ -16,9 +16,10 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 // Helper component for Rive Animation
 const GalaxyRive = () => {
   // NOTE: You need to place a 'galaxy.riv' file in your 'public' folder for this to work.
+  // Using relative path 'galaxy.riv' instead of '/galaxy.riv' to support sub-path deployments (like WebStorm built-in server)
   
   const { RiveComponent } = useRive({
-    src: '/galaxy.riv',
+    src: 'galaxy.riv',
     autoplay: true,
     layout: new Layout({
       fit: Fit.Cover,
@@ -30,7 +31,7 @@ const GalaxyRive = () => {
   return (
     // Removed opacity-60 and mix-blend-screen so the sun/galaxy is fully opaque and vibrant
     <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-      <RiveComponent />
+      <RiveComponent className="w-full h-full block" />
     </div>
   );
 };
@@ -307,7 +308,7 @@ const LandingPage: React.FC = () => {
                      <img 
                       src={product.thumbnailUrl} 
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                     />
                     
