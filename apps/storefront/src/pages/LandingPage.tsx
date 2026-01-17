@@ -6,7 +6,6 @@ import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
 import { useRive } from '@rive-app/react-canvas';
-// Import everything as a namespace to handle potential CJS/ESM mismatch in Vite
 import * as RiveCanvasModule from '@rive-app/canvas';
 
 // Safely extract classes whether they are on default or named exports
@@ -15,11 +14,11 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
-  // NOTE: You need to place a 'galaxy.riv' file in your 'public' folder for this to work.
-  // Using relative path 'galaxy.riv' instead of '/galaxy.riv' to support sub-path deployments (like WebStorm built-in server)
+  // NOTE: Ensure 'galaxy.riv' is in 'public' folder.
+  // Using 'public/galaxy.riv' to match the specific file serving structure seen in index.html
   
   const { RiveComponent } = useRive({
-    src: 'galaxy.riv',
+    src: 'public/galaxy.riv', 
     autoplay: true,
     layout: new Layout({
       fit: Fit.Cover,
@@ -29,7 +28,6 @@ const GalaxyRive = () => {
   });
 
   return (
-    // Removed opacity-60 and mix-blend-screen so the sun/galaxy is fully opaque and vibrant
     <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
       <RiveComponent className="w-full h-full block" />
     </div>
@@ -308,7 +306,7 @@ const LandingPage: React.FC = () => {
                      <img 
                       src={product.thumbnailUrl} 
                       alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                     />
                     
