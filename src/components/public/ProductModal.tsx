@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, SiteConfig, SocialLink } from '../../types';
-import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink } from 'lucide-react';
+import { X, CheckCircle2, Copy, MessageCircle, Info, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 import { DynamicIcon } from '../ui/Icons';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface ProductModalProps {
   product: Product;
@@ -14,6 +16,17 @@ interface ProductModalProps {
 const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, socials = [], isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
   const [showContactMenu, setShowContactMenu] = useState(false);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -50,8 +63,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
 
         <div className="flex flex-col md:flex-row h-full overflow-hidden">
           {/* Left: Single Main Image */}
-          <div className="w-full md:w-5/12 bg-emerald-50/50 dark:bg-gray-800/50 p-6 md:p-8 flex items-center justify-center shrink-0">
-            <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+          {/* Mobile: reduced padding and aspect-video to save vertical space. Desktop: aspect-square */}
+          <div className="w-full md:w-5/12 bg-emerald-50/50 dark:bg-gray-800/50 p-4 md:p-8 flex items-center justify-center shrink-0">
+            <div className="w-full aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
               <img 
                 src={product.thumbnailUrl} 
                 alt={product.name} 
@@ -61,8 +75,9 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
           </div>
 
           {/* Right: Info */}
-          <div className="w-full md:w-7/12 flex flex-col h-full overflow-hidden relative">
-            <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar pb-24">
+          {/* Use flex-1 instead of h-full to allow correct resizing in column layout */}
+          <div className="w-full md:w-7/12 flex-1 flex flex-col min-h-0 overflow-hidden relative">
+            <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar min-h-0">
               <div className="flex flex-wrap gap-2 mb-4">
                 {product.tags.map((tag, idx) => (
                   <span key={idx} className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-full">
@@ -102,15 +117,34 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, siteConfig, social
                   </div>
               </div>
 
-              {/* Detailed Info */}
+              {/* Detailed Info (Expandable) */}
               {product.fullDescription && (
-                <div className="mb-6">
+                <div className="mb-6 group">
                    <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-2 flex items-center gap-2">
                      <Info size={16} className="text-emerald-500"/> Thông tin chi tiết
                    </h3>
-                   <div className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                     {product.fullDescription}
+                   {/* Increased max-height significantly to support very long content */}
+                   <div className={`relative bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-all duration-500 ease-in-out ${isDescExpanded ? 'max-h-[5000px] overflow-y-auto' : 'max-h-[100px] overflow-hidden'}`}>
+                     <div className="p-4 markdown-body text-gray-600 dark:text-gray-300 text-sm">
+                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{product.fullDescription}</ReactMarkdown>
+                     </div>
+                     {/* Gradient overlay when collapsed */}
+                     {!isDescExpanded && (
+                       <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-50 dark:from-gray-800 via-gray-50/80 dark:via-gray-800/80 to-transparent flex items-end justify-center pb-2 cursor-pointer" onClick={() => setIsDescExpanded(true)}>
+                       </div>
+                     )}
                    </div>
+                   
+                   <button 
+                      onClick={() => setIsDescExpanded(!isDescExpanded)}
+                      className="w-full mt-2 py-1.5 flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                   >
+                      {isDescExpanded ? (
+                          <>Thu gọn <ChevronUp size={14}/></>
+                      ) : (
+                          <>Xem thêm <ChevronDown size={14}/></>
+                      )}
+                   </button>
                 </div>
               )}
 

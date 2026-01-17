@@ -89,6 +89,33 @@
         border-radius: 0.25rem;
         font-family: monospace;
       }
+
+      /* Table Styles for Markdown */
+      .markdown-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        font-size: 0.9em;
+        overflow: hidden;
+        border-radius: 0.5rem;
+      }
+      .markdown-body th, .markdown-body td {
+        border: 1px solid #374151; /* gray-700 */
+        padding: 0.75rem;
+        text-align: left;
+      }
+      .markdown-body th {
+        background-color: rgba(16, 185, 129, 0.15); /* emerald tint */
+        font-weight: 600;
+        color: #10b981; /* emerald-500 */
+        border-bottom: 2px solid #059669; /* emerald-600 */
+      }
+      .markdown-body tr:nth-child(even) {
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+      .markdown-body tr:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
     </style>
   <script type="importmap">
 {
@@ -101,7 +128,8 @@
     "vite": "https://esm.sh/vite@^7.3.1",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
     "path": "https://esm.sh/path@^0.12.7",
-    "react-markdown": "https://esm.sh/react-markdown@9.0.1"
+    "react-markdown": "https://esm.sh/react-markdown@9.0.1",
+    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
   }
 }
 </script>
