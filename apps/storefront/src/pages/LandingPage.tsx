@@ -5,86 +5,126 @@ import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-r
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
-import { useRive } from '@rive-app/react-canvas';
-import * as RiveCanvasModule from '@rive-app/canvas';
 
-// Safely extract exports handling both ESM and CommonJS-style default exports
-const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
-const { Layout, Fit, Alignment } = RiveCanvas;
+// --- VISUAL COMPONENTS ---
 
-// Helper component for Rive Animation
-const GalaxyRive = () => {
-  // Using the high-level useRive hook handles WASM init, canvas context, and resizing automatically.
-  // This avoids "Internal Rive Load Error" caused by manual instantiation on an unready canvas or context.
-  const { RiveComponent } = useRive({
-    src: '/galaxy.riv', // Assumes galaxy.riv is in the public/ folder
-    autoplay: true,
-    layout: new Layout({
-      fit: Fit.Cover,
-      alignment: Alignment.Center,
-    }),
-    onLoadError: (e) => console.warn("Rive failed to load. Falling back to CSS stars.", e)
-  });
-
-  return (
-    <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-      <RiveComponent className="w-full h-full block" />
-    </div>
-  );
-};
-
-// Helper component for drawing stars (CSS Fallback/Overlay)
+// 1. StarField: Generates static stars with CSS animations
 const StarField = React.memo(() => {
   return (
-    <div className="stars-container">
-      {/* 1. Space Dust (Small, faint, slow) */}
-      {[...Array(150)].map((_, i) => (
+    <div className="absolute inset-0 z-0">
+      {/* Layer 1: Small distant stars (Slow) */}
+      {[...Array(100)].map((_, i) => (
         <div
-          key={`dust-${i}`}
+          key={`s1-${i}`}
           className="star"
           style={{
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
-            width: `${Math.random() * 1.5}px`,
-            height: `${Math.random() * 1.5}px`,
-            '--duration': `${Math.random() * 10 + 10}s`,
-            '--opacity': `${Math.random() * 0.3 + 0.1}`
+            width: '1px',
+            height: '1px',
+            '--duration': `${Math.random() * 5 + 10}s`,
+            '--opacity': `${Math.random() * 0.5 + 0.1}`
           } as any}
         />
       ))}
+      {/* Layer 2: Medium stars (Medium) */}
+      {[...Array(50)].map((_, i) => (
+        <div
+          key={`s2-${i}`}
+          className="star"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            width: '2px',
+            height: '2px',
+            '--duration': `${Math.random() * 3 + 5}s`,
+            '--opacity': `${Math.random() * 0.7 + 0.3}`
+          } as any}
+        />
+      ))}
+      {/* Layer 3: Bright twinkling stars (Fast) */}
+      {[...Array(15)].map((_, i) => (
+        <div
+          key={`s3-${i}`}
+          className="star"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            width: '3px',
+            height: '3px',
+            boxShadow: '0 0 4px rgba(255,255,255,0.8)',
+            '--duration': `${Math.random() * 2 + 2}s`,
+            '--opacity': `${Math.random() * 0.5 + 0.5}`
+          } as any}
+        />
+      ))}
+    </div>
+  );
+});
 
-      {/* 2. Normal Stars (Medium) */}
-      {[...Array(80)].map((_, i) => (
-        <div
-          key={`star-${i}`}
-          className="star"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: `${Math.random() * 2 + 1}px`,
-            height: `${Math.random() * 2 + 1}px`,
-            '--duration': `${Math.random() * 4 + 2}s`,
-            '--opacity': `${Math.random() * 0.5 + 0.3}`
-          } as any}
-        />
-      ))}
+// 2. SpaceBackground: Combines Gradients, Enhanced Nebulas, Planets, and StarField
+const SpaceBackground = React.memo(() => {
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#030712]">
+       {/* Inject custom keyframes for planet floating */}
+       <style>{`
+         @keyframes float-planet {
+           0%, 100% { transform: translateY(0) rotate(0deg); }
+           50% { transform: translateY(-20px) rotate(2deg); }
+         }
+         @keyframes float-planet-reverse {
+           0%, 100% { transform: translateY(0) rotate(0deg); }
+           50% { transform: translateY(15px) rotate(-3deg); }
+         }
+         .animate-float-planet { animation: float-planet 10s ease-in-out infinite; }
+         .animate-float-planet-slow { animation: float-planet-reverse 18s ease-in-out infinite; }
+         .animate-float-planet-fast { animation: float-planet 8s ease-in-out infinite; }
+       `}</style>
 
-      {/* 3. Bright Glowing Stars (Large with shadow) */}
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={`glow-${i}`}
-          className="star"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: `${Math.random() * 3 + 2}px`,
-            height: `${Math.random() * 3 + 2}px`,
-            '--duration': `${Math.random() * 3 + 1}s`,
-            '--opacity': `${Math.random() * 0.4 + 0.6}`,
-            boxShadow: `0 0 ${Math.random() * 10 + 4}px rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`
-          } as any}
-        />
-      ))}
+       {/* Base Gradient - Deep Space */}
+       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#050a1f] to-[#02040a]"></div>
+       
+       {/* --- ENHANCED NEBULA BLOBS (6 Blobs) --- */}
+       {/* 1. Top Left - Emerald */}
+       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob opacity-40"></div>
+       {/* 2. Top Right - Indigo */}
+       <div className="absolute top-[5%] right-[-10%] w-[45vw] h-[45vw] bg-indigo-500/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000 opacity-40"></div>
+       {/* 3. Bottom Left - Purple */}
+       <div className="absolute bottom-[-10%] left-[10%] w-[55vw] h-[55vw] bg-purple-600/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob animation-delay-4000 opacity-30"></div>
+       {/* 4. Center Right - Pink/Rose (NEW) */}
+       <div className="absolute top-[40%] right-[-5%] w-[40vw] h-[40vw] bg-rose-500/10 rounded-full mix-blend-screen filter blur-[90px] animate-blob animation-delay-2000 opacity-30"></div>
+       {/* 5. Bottom Center - Cyan (NEW) */}
+       <div className="absolute bottom-[-20%] left-[40%] w-[50vw] h-[50vw] bg-cyan-500/10 rounded-full mix-blend-screen filter blur-[110px] animate-blob opacity-25"></div>
+       {/* 6. Top Center - Amber (NEW - Subtle warmth) */}
+       <div className="absolute top-[-20%] left-[30%] w-[60vw] h-[40vw] bg-amber-500/5 rounded-full mix-blend-screen filter blur-[130px] animate-blob animation-delay-4000 opacity-20"></div>
+
+       {/* Texture Overlays */}
+       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:40px_40px] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+       
+       {/* --- PLANETS --- */}
+       
+       {/* Planet 1: Ringed Planet (Top Right - behind text) */}
+       <div className="absolute top-[12%] right-[8%] w-28 h-28 md:w-48 md:h-48 opacity-60 animate-float-planet-slow z-0">
+          {/* Body */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-300 to-slate-900 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.6)]"></div>
+          {/* Atmosphere Glow */}
+          <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-xl"></div>
+          {/* Ring */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[40%] border-[6px] md:border-[10px] border-slate-400/10 border-t-slate-300/30 border-l-slate-300/30 rounded-[50%] rotate-[-25deg] shadow-[0_0_20px_rgba(255,255,255,0.05)]"></div>
+       </div>
+
+       {/* Planet 2: Ice Giant (Bottom Left) */}
+       <div className="absolute bottom-[25%] left-[-2%] w-32 h-32 md:w-56 md:h-56 opacity-50 animate-float-planet z-0">
+          <div className="w-full h-full rounded-full bg-gradient-to-tr from-cyan-900 via-cyan-700 to-teal-400 shadow-[0_0_60px_rgba(34,211,238,0.15)] blur-[0.5px]"></div>
+       </div>
+
+       {/* Planet 3: Distant Moon (Top Left) */}
+       <div className="absolute top-[18%] left-[15%] w-8 h-8 md:w-12 md:h-12 opacity-80 animate-float-planet-fast z-0">
+           <div className="w-full h-full rounded-full bg-gray-100 shadow-[inset_-3px_-3px_6px_rgba(0,0,0,0.8)]"></div>
+       </div>
+
+       {/* Stars */}
+       <StarField />
     </div>
   );
 });
@@ -138,33 +178,11 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-950 flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30 relative overflow-x-hidden">
       
-      {/* --- GLOBAL FIXED BACKGROUND (STARS & GRADIENTS) --- */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        {/* Deep Space Base - Radial Gradient to give 3D depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black"></div>
-        
-        {/* 3D Grid Pattern - matrix style */}
-        <div className="absolute inset-0 bg-grid-white/[0.03] bg-grid-pattern [mask-image:linear-gradient(to_bottom,transparent,black,transparent)]"></div>
-
-        {/* Moving Nebula Blobs (Enhanced colors & size) */}
-        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-emerald-600/20 rounded-full mix-blend-screen filter blur-[120px] animate-blob opacity-30"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000 opacity-30"></div>
-        <div className="absolute bottom-[-10%] left-[20%] w-[700px] h-[700px] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[140px] animate-blob animation-delay-4000 opacity-30"></div>
-        
-        {/* Twinkling Stars (Overlay everywhere) */}
-        <StarField />
-      </div>
+      {/* 1. Global Space Background (Fixed) */}
+      <SpaceBackground />
       
-      {/* Content Layer - z-index ensures it sits above fixed background */}
+      {/* 2. Content Layer */}
       <div className="relative z-10 flex flex-col min-h-screen">
-
-        {/* --- RIVE GALAXY BACKGROUND (HEADER ONLY) --- */}
-        {/* Positioned absolute at the top, scrolls with content, blended at bottom */}
-        <div className="absolute top-0 left-0 w-full h-[120vh] z-[-1] overflow-hidden pointer-events-none">
-           <GalaxyRive />
-           {/* Fade out mask to blend Rive into the dark background below */}
-           <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-gray-950 to-transparent"></div>
-        </div>
 
         {/* Navbar */}
         <nav className="bg-gray-950/70 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 supports-[backdrop-filter]:bg-gray-950/40">
@@ -188,17 +206,14 @@ const LandingPage: React.FC = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-500/10 filter blur-[80px] rounded-full pointer-events-none"></div>
 
             <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight mb-8 flex flex-col items-center gap-6">
-              {/* Logo in Hero - No opacity, fully overlays the Rive background */}
               <Logo className="h-24 w-24 md:h-36 md:w-36 shadow-[0_0_50px_-12px_rgba(16,185,129,0.5)] rounded-full animate-float" />
               
-              {/* Added Lifted/Floating Effect: Strong Drop Shadow and brighter gradient */}
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-100 to-gray-300 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] filter">
                 {config.siteName}
               </span>
             </h1>
             
             {config.tagline && (
-              // Added strong drop shadow for readability against galaxy
               <p className="text-lg md:text-2xl text-gray-100 mb-12 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
                 {config.tagline}
               </p>
