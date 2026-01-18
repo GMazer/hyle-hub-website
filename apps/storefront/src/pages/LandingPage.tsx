@@ -5,12 +5,7 @@ import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-r
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
-import { useRive } from '@rive-app/react-canvas';
-import * as RiveCanvasModule from '@rive-app/canvas';
-
-// Safely extract classes whether they are on default or named exports
-const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
-const { Layout, Fit, Alignment } = RiveCanvas;
+import { Alignment, Fit, Layout, useRive } from '@rive-app/react-canvas';
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
@@ -22,17 +17,54 @@ const GalaxyRive = () => {
     typeof window !== 'undefined'
       ? new URL('galaxy.riv', `${window.location.origin}${baseUrl}`).toString()
       : `${baseUrl}galaxy.riv`;
+  const [riveBuffer, setRiveBuffer] = useState<ArrayBuffer | null>(null);
 
-  const { RiveComponent } = useRive({
-    src: rivePath, 
-    autoplay: true,
-    layout: new Layout({
-      fit: Fit.Cover,
-      alignment: Alignment.Center,
-    }),
-    onLoad: () => console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`),
-    onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure file exists in public/ folder.`, e)
-  });
+  useEffect(() => {
+    let isMounted = true;
+    const loadRive = async () => {
+      try {
+        const response = await fetch(rivePath);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} while fetching ${rivePath}`);
+        }
+        const buffer = await response.arrayBuffer();
+        const header = new TextDecoder('utf-8').decode(buffer.slice(0, 4));
+        if (header !== 'RIVE') {
+          throw new Error(`Unexpected header "${header}" for ${rivePath}`);
+        }
+        if (isMounted) {
+          setRiveBuffer(buffer);
+        }
+      } catch (error) {
+        console.error(`[GalaxyRive] Failed to fetch ${rivePath}. Ensure file exists in public/ folder.`, error);
+      }
+    };
+
+    loadRive();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [rivePath]);
+
+  const { RiveComponent } = useRive(
+    riveBuffer
+      ? {
+          buffer: riveBuffer,
+          autoplay: true,
+          layout: new Layout({
+            fit: Fit.Cover,
+            alignment: Alignment.Center,
+          }),
+          onLoad: () => console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`),
+          onLoadError: (e: any) =>
+            console.error(
+              `[GalaxyRive] Failed to load from ${rivePath}. Ensure file exists in public/ folder.`,
+              e
+            ),
+        }
+      : null
+  );
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
