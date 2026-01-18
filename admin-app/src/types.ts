@@ -26,6 +26,7 @@ export interface Product {
   priceOptions: PriceOption[];
   status: 'published' | 'draft' | 'hidden';
   notes?: string;
+  isHot?: boolean;
   createdAt: string;
   updatedAt: string;
 }

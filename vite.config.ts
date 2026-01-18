@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -25,8 +26,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html'),
-        admin: path.resolve(__dirname, 'apps/admin/index.html')
+        main: path.resolve(__dirname, 'index.html')
+        // Removed 'admin' entry pointing to apps/admin/index.html
       }
     }
   }
