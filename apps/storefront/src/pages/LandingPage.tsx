@@ -5,7 +5,6 @@ import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-r
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
-// import { useRive } from '@rive-app/react-canvas'; // No longer using hook
 import * as RiveCanvasModule from '@rive-app/canvas';
 
 // Safely extract classes whether they are on default or named exports
@@ -15,18 +14,13 @@ const { Layout, Fit, Alignment, Rive } = RiveCanvas;
 // Helper component for Rive Animation
 const GalaxyRive = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const riveInstance = useRef<any>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Fix: Vite serves the contents of 'public/' at the root URL '/'.
-    // We must access it as /galaxy.riv
-    
-    // @ts-ignore
-    const env = import.meta.env || {};
-    const baseUrl = env.BASE_URL || '/';
-    // Construct path: /galaxy.riv
-    const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
+    // Based on index.html using /public/logohylehub.svg, we use the /public prefix here too.
+    const rivePath = '/public/galaxy.riv';
 
     const r = new Rive({
       src: rivePath,
@@ -37,22 +31,27 @@ const GalaxyRive = () => {
         alignment: Alignment.Center,
       }),
       onLoad: () => {
-        console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`);
+        // console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`);
         r.resizeDrawingSurfaceToCanvas();
       },
-      onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}.`, e)
+      onLoadError: (e: any) => {
+        console.warn(`[GalaxyRive] Failed to load from ${rivePath}. Checking file existence...`, e);
+      }
     });
+    
+    riveInstance.current = r;
 
     const handleResize = () => r.resizeDrawingSurfaceToCanvas();
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      // Clean up Rive instance
-      if (r) {
-        r.stop();
-        // Check if cleanup method exists (depends on version)
-        if (typeof r.cleanup === 'function') r.cleanup();
+      if (riveInstance.current) {
+        riveInstance.current.stop();
+        if (typeof riveInstance.current.cleanup === 'function') {
+          riveInstance.current.cleanup();
+        }
+        riveInstance.current = null;
       }
     };
   }, []);
