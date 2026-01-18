@@ -14,13 +14,16 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
-  // Use explicit path handling for Vite dev vs prod
-  // In dev with root='.', public assets are at /public/file
-  // In prod, public assets are moved to root /file
+  // Fix: Vite serves the contents of 'public/' at the root URL '/'.
+  // Even in Dev mode, accessing /public/file often redirects to HTML/404.
+  // We must access it as /galaxy.riv
   
   // @ts-ignore
   const env = import.meta.env || {};
-  const rivePath = env.DEV ? '/public/galaxy.riv' : '/galaxy.riv';
+  const baseUrl = env.BASE_URL || '/';
+  
+  // Construct path: /galaxy.riv
+  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
 
   const { RiveComponent } = useRive({
     src: rivePath, 
@@ -30,7 +33,7 @@ const GalaxyRive = () => {
       alignment: Alignment.Center,
     }),
     onLoad: () => console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`),
-    onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure file exists in public/ folder.`, e)
+    onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure 'galaxy.riv' exists in the 'public' folder.`, e)
   });
 
   return (
