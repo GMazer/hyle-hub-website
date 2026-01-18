@@ -1,8 +1,10 @@
 import { Product, Category, SiteConfig, SocialLink } from '../../../packages/shared/types';
 
-// Points to the Node.js Backend on Render
+// Safely access environment variables
 // @ts-ignore
-const RAW_URL = import.meta.env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+const env = import.meta.env || {};
+const RAW_URL = env.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+// Remove ALL trailing slashes
 export const API_URL = RAW_URL.replace(/\/+$/, '');
 
 class AdminApi {

@@ -14,12 +14,13 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
-  // Use Vite's BASE_URL to ensure correct pathing in production/sub-paths
-  // File MUST exist at public/galaxy.riv
+  // Use explicit path handling for Vite dev vs prod
+  // In dev with root='.', public assets are at /public/file
+  // In prod, public assets are moved to root /file
   
   // @ts-ignore
-  const baseUrl = import.meta.env?.BASE_URL || '/';
-  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
+  const env = import.meta.env || {};
+  const rivePath = env.DEV ? '/public/galaxy.riv' : '/galaxy.riv';
 
   const { RiveComponent } = useRive({
     src: rivePath, 

@@ -1,7 +1,9 @@
 import { Product, Category, SiteConfig, SocialLink } from '../../../packages/shared/types';
 
+// Safely access environment variables
 // @ts-ignore
-const API_URL = import.meta.env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+const env = import.meta.env || {};
+const API_URL = env.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {
