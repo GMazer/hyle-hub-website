@@ -1,4 +1,5 @@
-import { Product, Category, SiteConfig, SocialLink } from '../types';
+
+import { Product, Category, SiteConfig, SocialLink, AnalyticsStats } from '../types';
 
 // Points to the Node.js Backend on Render
 const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
@@ -15,6 +16,16 @@ class AdminApi {
       'Content-Type': 'application/json',
       'x-admin-password': password
     };
+  }
+
+  // --- ANALYTICS ---
+  async getAnalytics(): Promise<AnalyticsStats> {
+    const res = await fetch(`${API_URL}/api/analytics/stats`, {
+      method: 'GET',
+      headers: this.getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch analytics');
+    return res.json();
   }
 
   // --- CONFIG ---

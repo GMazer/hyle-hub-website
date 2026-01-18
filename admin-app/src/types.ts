@@ -1,3 +1,4 @@
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   VISITOR = 'VISITOR'
@@ -5,10 +6,10 @@ export enum UserRole {
 
 export interface PriceOption {
   id: string;
-  name: string;
+  name: string; // e.g., "1 Month", "Lifetime"
   price: number;
   currency: string;
-  unit: string;
+  unit: string; // e.g., "month", "user"
   description?: string;
   isHighlight?: boolean;
 }
@@ -25,8 +26,8 @@ export interface Product {
   tags: string[];
   priceOptions: PriceOption[];
   status: 'published' | 'draft' | 'hidden';
-  notes?: string;
-  isHot?: boolean;
+  notes?: string; // Additional conditions like "No refunds"
+  isHot?: boolean; // New field for Hot products
   createdAt: string;
   updatedAt: string;
 }
@@ -42,10 +43,10 @@ export interface Category {
 
 export interface SocialLink {
   id: string;
-  platform: string;
+  platform: string; // e.g., "Facebook", "TikTok"
   url: string;
-  iconName: string;
-  handle?: string;
+  iconName: string; // Used to map to Lucide icons
+  handle?: string; // e.g., "@mybrand"
   order: number;
 }
 
@@ -54,10 +55,17 @@ export interface SiteConfig {
   logoUrl?: string;
   bannerUrl?: string;
   tagline?: string;
-  notices: string[];
+  notices: string[]; // List of bullet points for the notice block
   contactInfo: {
     email?: string;
     phone?: string;
     address?: string;
   };
+}
+
+export interface AnalyticsStats {
+  todayViews: number;
+  todayUnique: number;
+  totalViews: number;
+  totalUniqueIps: number;
 }

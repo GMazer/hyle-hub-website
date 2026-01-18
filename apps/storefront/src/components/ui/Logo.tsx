@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 interface LogoProps {
@@ -6,7 +7,7 @@ interface LogoProps {
 
 const Logo: React.FC<LogoProps> = ({ className = "w-10 h-10" }) => {
   return (
-    <div className={`relative overflow-hidden rounded-full group ${className}`}>
+    <div className={`relative overflow-hidden rounded-full group transform-gpu border border-transparent ${className}`}>
       <div className="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/80 to-transparent skew-x-[-25deg] animate-shine z-10 pointer-events-none"></div>
       
       <svg 

@@ -12,6 +12,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hylehu
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 // Middleware
+// Trust proxy is required to get real IP on Render/Vercel/Heroku
+app.set('trust proxy', true); 
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increase limit for bulk upload
 
@@ -107,6 +109,17 @@ const ProductSchema = new mongoose.Schema({
 });
 const Product = mongoose.model('Product', ProductSchema);
 
+// Visitor Schema for Analytics
+const VisitorSchema = new mongoose.Schema({
+  ip: String,
+  date: String, // Format: YYYY-MM-DD
+  hits: { type: Number, default: 1 },
+  lastSeen: { type: Date, default: Date.now }
+});
+// Composite index to ensure one record per IP per day
+VisitorSchema.index({ ip: 1, date: 1 }, { unique: true });
+const Visitor = mongoose.model('Visitor', VisitorSchema);
+
 // --- AUTH MIDDLEWARE ---
 const requireAdmin = (req, res, next) => {
   const authHeader = req.headers['x-admin-password'];
@@ -129,6 +142,62 @@ const checkDb = (req, res, next) => {
   }
   next();
 };
+
+// --- ANALYTICS ROUTES ---
+
+// 1. Track Visit (Called by Storefront)
+app.post('/api/analytics/track', checkDb, async (req, res) => {
+  try {
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Upsert: If exists for today/IP, increment hits. If not, create new.
+    await Visitor.findOneAndUpdate(
+      { ip, date: today },
+      { $inc: { hits: 1 }, $set: { lastSeen: new Date() } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({ success: true });
+  } catch (e) {
+    // Don't block the UI if analytics fails
+    console.error("Analytics Error:", e);
+    res.status(200).json({ success: false }); 
+  }
+});
+
+// 2. Get Stats (Called by Admin Dashboard)
+app.get('/api/analytics/stats', requireAdmin, checkDb, async (req, res) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Aggregations
+    const [todayStats, totalStats, uniqueStats] = await Promise.all([
+      // 1. Today's Views
+      Visitor.aggregate([
+        { $match: { date: today } },
+        { $group: { _id: null, totalHits: { $sum: "$hits" }, uniqueVisitors: { $count: {} } } }
+      ]),
+      // 2. Total Views (All time)
+      Visitor.aggregate([
+        { $group: { _id: null, totalHits: { $sum: "$hits" } } }
+      ]),
+      // 3. Total Unique IPs (All time)
+      Visitor.distinct('ip')
+    ]);
+
+    res.json({
+      todayViews: todayStats[0]?.totalHits || 0,
+      todayUnique: todayStats[0]?.uniqueVisitors || 0,
+      totalViews: totalStats[0]?.totalHits || 0,
+      totalUniqueIps: uniqueStats.length || 0
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 
 // 1. Config
 app.get('/api/config', checkDb, async (req, res) => {

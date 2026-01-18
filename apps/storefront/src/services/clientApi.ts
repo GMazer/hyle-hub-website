@@ -1,9 +1,8 @@
+
 import { Product, Category, SiteConfig, SocialLink } from '../../../packages/shared/types';
 
 // Safely access environment variables
-// @ts-ignore
-const env = import.meta.env || {};
-const API_URL = env.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {
@@ -28,6 +27,16 @@ class ClientApi {
     const res = await fetch(`${API_URL}/api/socials`);
     if (!res.ok) return [];
     return res.json();
+  }
+
+  // New tracking method
+  async trackVisit(): Promise<void> {
+    try {
+      // Fire and forget, no need to wait for result
+      fetch(`${API_URL}/api/analytics/track`, { method: 'POST' });
+    } catch (e) {
+      // Ignore errors for analytics
+    }
   }
 }
 

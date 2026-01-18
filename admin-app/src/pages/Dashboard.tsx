@@ -1,21 +1,35 @@
+
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../services/api';
-import { SiteConfig, SocialLink } from '../types';
-import { Save, Plus, Trash2 } from 'lucide-react';
+import { SiteConfig, SocialLink, AnalyticsStats } from '../types';
+import { Save, Plus, Trash2, Users, Activity, Eye, RefreshCw } from 'lucide-react';
 import { DynamicIcon, IconMap } from '../components/ui/Icons';
 
 const Dashboard: React.FC = () => {
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [socials, setSocials] = useState<SocialLink[]>([]);
+  const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [saving, setSaving] = useState(false);
+  const [refreshingStats, setRefreshingStats] = useState(false);
 
   useEffect(() => {
-    Promise.all([adminApi.getConfig(), adminApi.getSocials()])
-      .then(([c, s]) => {
+    Promise.all([adminApi.getConfig(), adminApi.getSocials(), adminApi.getAnalytics()])
+      .then(([c, s, st]) => {
         setConfig(c || { siteName: 'HyleHub', notices: [], contactInfo: {}, tagline: '' } as SiteConfig);
         setSocials(s);
-      });
+        setStats(st);
+      })
+      .catch(e => console.error(e));
   }, []);
+
+  const refreshStats = async () => {
+    setRefreshingStats(true);
+    try {
+      const newStats = await adminApi.getAnalytics();
+      setStats(newStats);
+    } catch(e) { console.error(e); }
+    finally { setRefreshingStats(false); }
+  };
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!config) return;
@@ -78,8 +92,57 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Cấu hình trang</h1>
+      {/* Analytics Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className={`${cardClass} flex items-center justify-between`}>
+          <div>
+             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Lượt xem hôm nay</p>
+             <h3 className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+               {stats ? stats.todayViews : '...'}
+             </h3>
+             <p className="text-xs text-emerald-500 mt-1 flex items-center gap-1">
+               <Users size={12} /> {stats ? stats.todayUnique : '...'} người dùng (IP)
+             </p>
+          </div>
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-full text-emerald-600 dark:text-emerald-400">
+             <Activity size={24} />
+          </div>
+        </div>
+
+        <div className={`${cardClass} flex items-center justify-between`}>
+          <div>
+             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Tổng lượt xem</p>
+             <h3 className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+               {stats ? new Intl.NumberFormat('vi-VN').format(stats.totalViews) : '...'}
+             </h3>
+             <p className="text-xs text-gray-400 mt-1">Toàn thời gian</p>
+          </div>
+          <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+             <Eye size={24} />
+          </div>
+        </div>
+
+        <div className={`${cardClass} flex items-center justify-between`}>
+          <div>
+             <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Tổng người dùng (IP)</p>
+             <h3 className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+               {stats ? new Intl.NumberFormat('vi-VN').format(stats.totalUniqueIps) : '...'}
+             </h3>
+             <p className="text-xs text-gray-400 mt-1">Unique Visitors</p>
+          </div>
+          <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-full text-purple-600 dark:text-purple-400">
+             <Users size={24} />
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-4">
+           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Cấu hình trang</h1>
+           <button onClick={refreshStats} disabled={refreshingStats} title="Làm mới thống kê" className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+              <RefreshCw size={18} className={refreshingStats ? 'animate-spin' : ''} />
+           </button>
+        </div>
         <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 disabled:opacity-50">
           <Save size={18} /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
         </button>

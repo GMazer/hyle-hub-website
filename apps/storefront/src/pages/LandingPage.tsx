@@ -52,6 +52,10 @@ const LandingPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
+    // 1. Track Visit
+    clientApi.trackVisit();
+
+    // 2. Fetch Data
     const fetchData = async () => {
       try {
         const [conf, cats, prods, socs] = await Promise.all([
@@ -220,9 +224,11 @@ const LandingPage: React.FC = () => {
                 
                 {/* Logo & Brand - Massive Green Glow */}
                 <div className="mb-4 md:mb-8 animate-float relative group">
-                   <div className="absolute inset-0 bg-emerald-500/50 blur-[60px] md:blur-[80px] rounded-full group-hover:bg-emerald-500/60 transition-all duration-700"></div>
+                   {/* Fix: Center the blur, make it larger than container to avoid clipping edges */}
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-emerald-500/40 blur-[30px] md:blur-[80px] rounded-full group-hover:bg-emerald-500/50 transition-all duration-700"></div>
                    <div className="relative z-10">
-                      <Logo className="w-20 h-20 md:w-36 md:h-36 drop-shadow-[0_0_35px_rgba(16,185,129,0.8)]" />
+                      {/* Fix: Remove drop-shadow from here as it causes artifacts on mobile when combined with overflow-hidden in Logo */}
+                      <Logo className="w-20 h-20 md:w-36 md:h-36" />
                    </div>
                 </div>
 
