@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { adminApi } from '../services/api';
 import { Product, Category } from '../../../packages/shared/types';
-import { Plus, Edit, Trash2, Search, Upload, Download, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Upload, Download, FileText, Flame } from 'lucide-react';
 import ProductForm from '../components/ProductForm';
 import { generateSampleCSV, parseProductCSV } from '../utils/csvHelper';
 
@@ -162,9 +163,15 @@ const Products: React.FC = () => {
                   <tr key={product.id} className="hover:bg-emerald-50/50 dark:hover:bg-gray-800 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <img src={product.thumbnailUrl} alt="" className="w-10 h-10 rounded object-cover bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700" />
+                        <div className="relative">
+                            <img src={product.thumbnailUrl} alt="" className="w-10 h-10 rounded object-cover bg-gray-200 dark:bg-gray-700 border border-gray-200 dark:border-gray-700" />
+                            {product.isHot && <div className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white rounded-full p-0.5 border border-white dark:border-gray-900 shadow-sm"><Flame size={8} fill="currentColor"/></div>}
+                        </div>
                         <div>
-                          <div className="font-medium text-gray-900 dark:text-gray-100">{product.name}</div>
+                          <div className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
+                            {product.name}
+                            {product.isHot && <span className="text-[10px] bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 px-1.5 py-0.5 rounded font-bold uppercase">HOT</span>}
+                          </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">{product.slug}</div>
                         </div>
                       </div>

@@ -1,3 +1,4 @@
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   VISITOR = 'VISITOR'
@@ -26,6 +27,7 @@ export interface Product {
   priceOptions: PriceOption[];
   status: 'published' | 'draft' | 'hidden';
   notes?: string; // Additional conditions like "No refunds"
+  isHot?: boolean; // New field for Hot products
   createdAt: string;
   updatedAt: string;
 }

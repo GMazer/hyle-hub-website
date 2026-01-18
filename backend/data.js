@@ -1,3 +1,4 @@
+
 // Initial Seed Data mirrored from frontend
 const INITIAL_CONFIG = {
   siteName: "HyleHub Store",
@@ -65,6 +66,7 @@ const INITIAL_PRODUCTS = [
     fullDescription: '✅ Nâng cấp trên chính email của bạn\n✅ Sử dụng GPT-4, DALL-E 3, Browsing\n✅ Bảo hành full thời gian\n✅ Hỗ trợ lỗi 1 đổi 1 ngay lập tức',
     tags: ['Hot', 'AI'],
     notes: 'Không share tài khoản cho người khác',
+    isHot: true, // Marked as HOT
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     priceOptions: [

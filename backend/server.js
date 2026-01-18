@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -91,6 +92,7 @@ const ProductSchema = new mongoose.Schema({
   fullDescription: String,
   tags: [String],
   notes: String,
+  isHot: { type: Boolean, default: false }, // Added isHot field
   priceOptions: [{
     id: String,
     name: String,
@@ -204,7 +206,8 @@ app.post('/api/socials', requireAdmin, checkDb, async (req, res) => {
 // 4. Products
 app.get('/api/products', checkDb, async (req, res) => {
   try {
-    const products = await Product.find().sort({ updatedAt: -1 });
+    // Sort by isHot first (Hot products first), then by updatedAt
+    const products = await Product.find().sort({ isHot: -1, updatedAt: -1 });
     res.json(products);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

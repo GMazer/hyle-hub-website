@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, PriceOption } from '../../../packages/shared/types';
-import { Plus, Trash2, Save, ArrowLeft, Upload } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Upload, Flame } from 'lucide-react';
 import { adminApi } from '../services/api';
 
 interface Props {
@@ -22,7 +23,8 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
     tags: [],
     status: 'draft',
     priceOptions: [],
-    notes: ''
+    notes: '',
+    isHot: false
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +38,11 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,11 +160,27 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
           </div>
           <div>
             <label className={labelClass}>Trạng thái</label>
-            <select name="status" value={formData.status} onChange={handleChange} className={inputClass}>
-              <option value="draft">Nháp</option>
-              <option value="published">Đang hiện</option>
-              <option value="hidden">Đã ẩn</option>
-            </select>
+            <div className="flex gap-4">
+                <select name="status" value={formData.status} onChange={handleChange} className={`${inputClass} flex-1`}>
+                  <option value="draft">Nháp</option>
+                  <option value="published">Đang hiện</option>
+                  <option value="hidden">Đã ẩn</option>
+                </select>
+                <div className="flex items-center">
+                    <label className="flex items-center gap-2 cursor-pointer select-none px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <input 
+                           type="checkbox" 
+                           name="isHot" 
+                           checked={formData.isHot || false} 
+                           onChange={handleCheckboxChange} 
+                           className="w-5 h-5 accent-orange-500"
+                        />
+                        <span className="font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                            <Flame size={16} fill="currentColor" /> HOT
+                        </span>
+                    </label>
+                </div>
+            </div>
           </div>
         </div>
         <div className="space-y-4">
