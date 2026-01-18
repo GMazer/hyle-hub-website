@@ -16,7 +16,10 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 const GalaxyRive = () => {
   // Use Vite's BASE_URL to ensure correct pathing in production/sub-paths
   // File MUST exist at public/galaxy.riv
-  const rivePath = `${(import.meta as any).env.BASE_URL}galaxy.riv`.replace('//', '/');
+  
+  // @ts-ignore
+  const baseUrl = import.meta.env?.BASE_URL || '/';
+  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
 
   const { RiveComponent } = useRive({
     src: rivePath, 
@@ -26,7 +29,7 @@ const GalaxyRive = () => {
       alignment: Alignment.Center,
     }),
     onLoad: () => console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`),
-    onError: (e) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure file exists in public/ folder.`, e)
+    onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure file exists in public/ folder.`, e)
   });
 
   return (

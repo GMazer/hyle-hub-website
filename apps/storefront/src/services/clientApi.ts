@@ -1,6 +1,7 @@
 import { Product, Category, SiteConfig, SocialLink } from '../../../packages/shared/types';
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+// @ts-ignore
+const API_URL = import.meta.env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 
 class ClientApi {
   async getConfig(): Promise<SiteConfig | null> {

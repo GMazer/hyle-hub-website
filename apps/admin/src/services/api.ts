@@ -1,7 +1,8 @@
 import { Product, Category, SiteConfig, SocialLink } from '../../../packages/shared/types';
 
 // Points to the Node.js Backend on Render
-const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
+// @ts-ignore
+const RAW_URL = import.meta.env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
 export const API_URL = RAW_URL.replace(/\/+$/, '');
 
 class AdminApi {
