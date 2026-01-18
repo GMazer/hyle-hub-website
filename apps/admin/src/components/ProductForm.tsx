@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, Category, PriceOption } from '../../../packages/shared/types';
-import { Plus, Trash2, Save, ArrowLeft, Upload, Flame } from 'lucide-react';
+import { Plus, Trash2, Save, ArrowLeft, Upload, Flame, Copy } from 'lucide-react';
 import { adminApi } from '../services/api';
 
 interface Props {
@@ -82,6 +82,19 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
     setFormData(prev => ({ ...prev, priceOptions: [...(prev.priceOptions || []), newPrice] }));
   };
 
+  const handleDuplicatePrice = (index: number) => {
+    if (!formData.priceOptions) return;
+    const optionToClone = formData.priceOptions[index];
+    const newOption: PriceOption = {
+      ...optionToClone,
+      id: Math.random().toString(36).substr(2, 9),
+      name: `${optionToClone.name} (Copy)`
+    };
+    const newOptions = [...formData.priceOptions];
+    newOptions.splice(index + 1, 0, newOption);
+    setFormData(prev => ({ ...prev, priceOptions: newOptions }));
+  };
+
   const handlePriceChange = (id: string, field: keyof PriceOption, value: any) => {
     setFormData(prev => ({
       ...prev,
@@ -159,23 +172,25 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
             </select>
           </div>
           <div>
-            <label className={labelClass}>Trạng thái</label>
+            <label className={labelClass}>Trạng thái & Nổi bật</label>
             <div className="flex gap-4">
                 <select name="status" value={formData.status} onChange={handleChange} className={`${inputClass} flex-1`}>
                   <option value="draft">Nháp</option>
                   <option value="published">Đang hiện</option>
                   <option value="hidden">Đã ẩn</option>
                 </select>
+                
+                {/* HOT PRODUCT CHECKBOX */}
                 <div className="flex items-center">
-                    <label className="flex items-center gap-2 cursor-pointer select-none px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <label className="flex items-center gap-2 cursor-pointer select-none px-4 py-2.5 border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 transition-colors">
                         <input 
                            type="checkbox" 
                            name="isHot" 
                            checked={formData.isHot || false} 
                            onChange={handleCheckboxChange} 
-                           className="w-5 h-5 accent-orange-500"
+                           className="w-5 h-5 accent-orange-500 rounded focus:ring-orange-500"
                         />
-                        <span className="font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                        <span className="font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1 text-sm">
                             <Flame size={16} fill="currentColor" /> HOT
                         </span>
                     </label>
@@ -247,25 +262,57 @@ const ProductForm: React.FC<Props> = ({ product, categories, onSave, onCancel })
             </button>
           </div>
           <div className="space-y-3">
-            {formData.priceOptions?.map((opt) => (
+            {formData.priceOptions?.map((opt, idx) => (
               <div key={opt.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                 {/* Name - 3 Cols */}
                  <div className="md:col-span-3">
-                   <input type="text" value={opt.name} onChange={e => handlePriceChange(opt.id, 'name', e.target.value)} className={inputClass} placeholder="Tên gói" />
+                   <label className="text-xs text-gray-500 mb-1 block">Tên gói</label>
+                   <input type="text" value={opt.name} onChange={e => handlePriceChange(opt.id, 'name', e.target.value)} className={inputClass} placeholder="VD: 1 Tháng" />
                  </div>
+                 
+                 {/* Price - 2 Cols */}
                  <div className="md:col-span-2">
-                   <input type="number" value={opt.price} onChange={e => handlePriceChange(opt.id, 'price', Number(e.target.value))} className={inputClass} placeholder="Giá" />
+                   <label className="text-xs text-gray-500 mb-1 block">Giá (K)</label>
+                   <input type="number" value={opt.price} onChange={e => handlePriceChange(opt.id, 'price', Number(e.target.value))} className={inputClass} placeholder="0" />
                  </div>
-                 <div className="md:col-span-1">
-                   <input type="text" value={opt.unit} onChange={e => handlePriceChange(opt.id, 'unit', e.target.value)} className={inputClass} placeholder="Đơn vị" />
+                 
+                 {/* Unit - 2 Cols (Expanded) */}
+                 <div className="md:col-span-2">
+                   <label className="text-xs text-gray-500 mb-1 block">Đơn vị</label>
+                   <input type="text" value={opt.unit} onChange={e => handlePriceChange(opt.id, 'unit', e.target.value)} className={inputClass} placeholder="tháng/năm" />
                  </div>
-                 <div className="md:col-span-5 flex items-center gap-2">
-                    <input type="text" value={opt.description || ''} onChange={e => handlePriceChange(opt.id, 'description', e.target.value)} className={`${inputClass} flex-1`} placeholder="Mô tả" />
-                    <button type="button" onClick={() => handleRemovePrice(opt.id)} className="text-red-500 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"><Trash2 size={18}/></button>
+
+                 {/* Description - 3 Cols */}
+                 <div className="md:col-span-3">
+                    <label className="text-xs text-gray-500 mb-1 block">Mô tả phụ</label>
+                    <input type="text" value={opt.description || ''} onChange={e => handlePriceChange(opt.id, 'description', e.target.value)} className={inputClass} placeholder="VD: Dùng riêng" />
                  </div>
-                 <div className="md:col-span-12 flex items-center gap-2 pt-1">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none text-gray-600 dark:text-gray-400">
-                      <input type="checkbox" checked={opt.isHighlight} onChange={e => handlePriceChange(opt.id, 'isHighlight', e.target.checked)} className="accent-emerald-600 w-4 h-4"/>
-                      Nổi bật
+
+                 {/* Actions - 2 Cols */}
+                 <div className="md:col-span-2 flex items-end gap-1">
+                    <button 
+                      type="button" 
+                      onClick={() => handleDuplicatePrice(idx)} 
+                      className="flex-1 p-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg flex justify-center items-center" 
+                      title="Nhân bản gói này"
+                    >
+                        <Copy size={18}/>
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => handleRemovePrice(opt.id)} 
+                      className="flex-1 p-2.5 bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg flex justify-center items-center"
+                      title="Xoá gói này"
+                    >
+                        <Trash2 size={18}/>
+                    </button>
+                 </div>
+
+                 {/* Highlight Checkbox */}
+                 <div className="md:col-span-12 pt-1 border-t border-gray-200 dark:border-gray-700 mt-2">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer select-none text-gray-600 dark:text-gray-400 w-fit hover:text-emerald-600 dark:hover:text-emerald-400">
+                      <input type="checkbox" checked={opt.isHighlight || false} onChange={e => handlePriceChange(opt.id, 'isHighlight', e.target.checked)} className="accent-emerald-600 w-4 h-4 rounded"/>
+                      <span>Gói nổi bật (Highlight)</span>
                     </label>
                  </div>
               </div>
