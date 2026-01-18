@@ -16,7 +16,11 @@ const { Layout, Fit, Alignment } = RiveCanvas;
 const GalaxyRive = () => {
   // Use Vite's BASE_URL to ensure correct pathing in production/sub-paths
   // File MUST exist at public/galaxy.riv
-  const rivePath = `${(import.meta as any).env.BASE_URL}galaxy.riv`.replace('//', '/');
+  const baseUrl =
+    typeof import.meta !== 'undefined' && (import.meta as any).env?.BASE_URL
+      ? (import.meta as any).env.BASE_URL
+      : '/';
+  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
 
   const { RiveComponent } = useRive({
     src: rivePath, 
