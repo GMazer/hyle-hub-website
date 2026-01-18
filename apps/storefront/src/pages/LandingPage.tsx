@@ -1,113 +1,34 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
 import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
+import { useRive } from '@rive-app/react-canvas';
 import * as RiveCanvasModule from '@rive-app/canvas';
 
-// Safely extract classes whether they are on default or named exports
+// Safely extract exports handling both ESM and CommonJS-style default exports
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
-const { Layout, Fit, Alignment, Rive } = RiveCanvas;
+const { Layout, Fit, Alignment } = RiveCanvas;
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const riveInstance = useRef<any>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    let isActive = true;
-
-    const loadRiveAnimation = async () => {
-      // List of possible paths to try. 
-      // Vite typically serves 'public' at root ('/galaxy.riv'), but sometimes it might need '/public/' prefix depending on setup.
-      const candidatePaths = [
-        '/galaxy.riv',
-        '/public/galaxy.riv',
-        'galaxy.riv'
-      ];
-
-      let validBuffer: ArrayBuffer | null = null;
-      let usedPath = '';
-
-      for (const path of candidatePaths) {
-        try {
-          const response = await fetch(path);
-          if (response.ok) {
-            const contentType = response.headers.get('content-type');
-            // Check if we accidentally got the index.html fallback (common Vite behavior for 404s)
-            if (contentType && contentType.includes('text/html')) {
-              continue; // Skip this path, it's not the binary file
-            }
-            validBuffer = await response.arrayBuffer();
-            usedPath = path;
-            break; // Found it!
-          }
-        } catch (err) {
-          // Ignore fetch errors and try next path
-        }
-      }
-
-      if (!isActive) return;
-
-      if (!validBuffer) {
-        console.error(`[GalaxyRive] Failed to load 'galaxy.riv' from paths: ${candidatePaths.join(', ')}. Please ensure the file exists in the 'public' folder.`);
-        return;
-      }
-
-      console.log(`[GalaxyRive] Successfully loaded buffer from: ${usedPath}`);
-
-      try {
-        const r = new Rive({
-          buffer: validBuffer, // Load from memory buffer instead of URL to avoid re-fetching issues
-          canvas: canvasRef.current!,
-          autoplay: true,
-          layout: new Layout({
-            fit: Fit.Cover,
-            alignment: Alignment.Center,
-          }),
-          onLoad: () => {
-            r.resizeDrawingSurfaceToCanvas();
-          },
-          onLoadError: (e: any) => {
-            console.error('[GalaxyRive] Internal Rive Load Error:', e);
-          }
-        });
-
-        riveInstance.current = r;
-      } catch (e) {
-        console.error('[GalaxyRive] Error initializing Rive instance:', e);
-      }
-    };
-
-    loadRiveAnimation();
-
-    const handleResize = () => {
-      if (riveInstance.current) {
-        riveInstance.current.resizeDrawingSurfaceToCanvas();
-      }
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      isActive = false;
-      window.removeEventListener('resize', handleResize);
-      if (riveInstance.current) {
-        riveInstance.current.stop();
-        if (typeof riveInstance.current.cleanup === 'function') {
-          riveInstance.current.cleanup();
-        }
-        riveInstance.current = null;
-      }
-    };
-  }, []);
+  // Using the high-level useRive hook handles WASM init, canvas context, and resizing automatically.
+  // This avoids "Internal Rive Load Error" caused by manual instantiation on an unready canvas or context.
+  const { RiveComponent } = useRive({
+    src: '/galaxy.riv', // Assumes galaxy.riv is in the public/ folder
+    autoplay: true,
+    layout: new Layout({
+      fit: Fit.Cover,
+      alignment: Alignment.Center,
+    }),
+    onLoadError: (e) => console.warn("Rive failed to load. Falling back to CSS stars.", e)
+  });
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-      <canvas ref={canvasRef} className="w-full h-full block" />
+      <RiveComponent className="w-full h-full block" />
     </div>
   );
 };
