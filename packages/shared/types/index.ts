@@ -35,6 +35,7 @@ export interface Category {
   name: string;
   slug: string;
   description?: string;
+  iconUrl?: string; // URL to SVG or Image icon
   order: number;
   isVisible: boolean;
 }

@@ -16,9 +16,33 @@ const INITIAL_CONFIG = {
 };
 
 const INITIAL_CATEGORIES = [
-  { id: '1', name: 'Công cụ AI', slug: 'ai-tools', order: 1, isVisible: true, description: 'ChatGPT, Midjourney...' },
-  { id: '2', name: 'Giải trí & Phim', slug: 'entertainment', order: 2, isVisible: true, description: 'Netflix, Youtube, Spotify' },
-  { id: '3', name: 'Thiết kế & Học tập', slug: 'design-edu', order: 3, isVisible: true, description: 'Canva, Duolingo, Coursera' }
+  { 
+    id: '1', 
+    name: 'Công cụ AI', 
+    slug: 'ai-tools', 
+    order: 1, 
+    isVisible: true, 
+    description: 'ChatGPT, Midjourney...',
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/6134/6134346.png' // Lightning icon placeholder
+  },
+  { 
+    id: '2', 
+    name: 'Giải trí & Phim', 
+    slug: 'entertainment', 
+    order: 2, 
+    isVisible: true, 
+    description: 'Netflix, Youtube, Spotify',
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/3163/3163478.png' // Play icon placeholder
+  },
+  { 
+    id: '3', 
+    name: 'Thiết kế & Học tập', 
+    slug: 'design-edu', 
+    order: 3, 
+    isVisible: true, 
+    description: 'Canva, Duolingo, Coursera',
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/5968/5968705.png' // Palette icon placeholder
+  }
 ];
 
 const INITIAL_SOCIALS = [

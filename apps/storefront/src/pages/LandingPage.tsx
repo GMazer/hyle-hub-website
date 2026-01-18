@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
-import { Search, Sparkles, Star, Eye, ShoppingCart, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Search, Sparkles, Star, Eye, ShoppingCart, Clock, ShieldCheck, CheckCircle2, Zap } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
@@ -273,12 +273,13 @@ const LandingPage: React.FC = () => {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all border ${
+                  className={`flex items-center gap-2 whitespace-nowrap px-5 py-2.5 rounded-xl text-sm font-bold transition-all border ${
                     selectedCategory === cat.id 
                       ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-transparent shadow-[0_0_20px_rgba(16,185,129,0.4)]' 
                       : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800 border-white/5 hover:border-white/20'
                   }`}
                 >
+                  {cat.iconUrl && <img src={cat.iconUrl} alt="" className="w-4 h-4 object-contain" />}
                   {cat.name}
                 </button>
               ))}
@@ -305,84 +306,82 @@ const LandingPage: React.FC = () => {
                   ? Math.min(...product.priceOptions.map(p => p.price)) 
                   : 0;
                const currency = product.priceOptions.find(p => p.price === minPrice)?.currency || '';
-               const fakeOriginalPrice = Math.round(minPrice * 1.36);
+               const category = categories.find(c => c.id === product.categoryId);
 
                return (
                 <div 
                   key={product.id} 
                   onClick={() => setSelectedProduct(product)}
-                  className="group flex flex-col bg-gray-900/40 rounded-2xl overflow-hidden border border-white/5 hover:border-emerald-500/40 cursor-pointer transition-colors duration-200 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] h-full relative"
+                  className="group relative flex flex-col bg-[#1a1d21] rounded-2xl overflow-hidden border border-white/5 hover:border-emerald-500/40 cursor-pointer transition-all duration-300 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1 h-full"
                 >
-                  {/* Glass highlight effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-
-                  {/* Image Section */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-800/50 p-6 flex items-center justify-center">
-                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/80 z-0"></div>
+                  {/* Image Section - Full Display No Padding */}
+                  <div className="relative aspect-[4/3] w-full bg-gray-800">
                      <img 
                       src={product.thumbnailUrl} 
                       alt={product.name}
-                      className="w-full h-full object-contain relative z-10 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-2xl"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
                     
-                    {/* Sale Badge (Top Right) */}
-                    <div className="absolute top-0 right-4 z-20">
-                       <div className="bg-yellow-400 text-gray-950 text-[10px] font-bold px-2 py-1.5 rounded-b shadow-lg flex flex-col items-center leading-none border-x border-b border-yellow-200/50">
-                         <span className="mb-0.5">SALE</span>
-                         <span>36%</span>
-                       </div>
+                    {/* Category Icon Overlay - Top Left */}
+                    {category?.iconUrl ? (
+                      <div className="absolute top-3 left-3 z-20 w-5 h-5 drop-shadow-md filter brightness-110">
+                        <img src={category.iconUrl} alt="cat-icon" className="w-full h-full object-contain" />
+                      </div>
+                    ) : (
+                      <div className="absolute top-3 left-3 z-20 text-yellow-500 drop-shadow-md">
+                        <Zap size={20} fill="currentColor" />
+                      </div>
+                    )}
+
+                    {/* Sale Badge - Top Right */}
+                    <div className="absolute top-3 right-3 z-20">
+                       <span className="bg-emerald-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm border border-emerald-400/30 shadow-lg">
+                         SALE 36%
+                       </span>
                     </div>
 
-                    {/* Status Tag (Top Left) */}
-                    <div className="absolute top-3 left-3 z-20">
-                       <span className="px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider rounded shadow-lg border border-emerald-400/30">
-                        {product.tags[0] || 'HOT'}
-                      </span>
-                    </div>
+                    {/* Gradient Overlay for Text Readability */}
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#1a1d21] to-transparent opacity-80"></div>
                   </div>
 
                   {/* Content Section */}
-                  <div className="p-4 flex flex-col flex-1 relative z-10 bg-gray-900/20 backdrop-blur-sm">
-                    <h3 className="text-lg font-bold text-gray-100 uppercase mb-1 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors drop-shadow-sm">
+                  <div className="p-4 flex flex-col flex-1 relative z-10 -mt-2">
+                    <h3 className="text-sm md:text-base font-bold text-gray-100 uppercase mb-1 line-clamp-1 group-hover:text-emerald-400 transition-colors tracking-wide">
                       {product.name}
                     </h3>
                     
-                    <p className="text-gray-400 text-xs mb-3 line-clamp-2">
+                    <p className="text-gray-500 text-xs mb-4 line-clamp-2 min-h-[2.5em]">
                       {product.shortDescription}
                     </p>
 
-                    <div className="mt-auto pt-3 border-t border-white/5 group-hover:border-emerald-500/20 transition-colors">
-                      {/* Price Row */}
-                      <div className="flex items-end gap-2 mb-3">
-                         <span className="text-base font-bold text-emerald-400 leading-none drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
-                           {new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}
-                         </span>
-                         {minPrice > 0 && (
-                           <span className="text-xs text-gray-600 line-through decoration-gray-600 mb-0.5">
-                             {new Intl.NumberFormat('vi-VN').format(fakeOriginalPrice)}{currency.toUpperCase()}
-                           </span>
-                         )}
-                      </div>
-
-                      {/* Footer Actions */}
-                      <div className="flex items-center justify-between">
-                         {/* Stars - Fixed 5 Stars */}
-                         <div className="flex gap-0.5">
+                    <div className="mt-auto">
+                      {/* Rating & Price */}
+                      <div className="flex items-end justify-between mb-3">
+                         <div className="flex gap-0.5 mb-1">
                             {[1,2,3,4,5].map(i => (
-                              <Star key={i} size={14} fill="#f59e0b" className="text-yellow-500 drop-shadow-sm" />
+                              <Star key={i} size={12} fill="#10b981" className="text-emerald-500" />
                             ))}
                          </div>
-
-                         {/* Action Buttons */}
-                         <div className="flex gap-2">
-                            <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-all border border-white/5 hover:border-white/20">
-                               <Eye size={16} />
-                            </button>
-                            <button className="h-8 px-3 flex items-center gap-1 rounded-lg bg-emerald-600/90 text-white hover:bg-emerald-500 transition-all shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5">
-                               <ShoppingCart size={16} />
-                            </button>
+                         <div className="text-right">
+                           <span className="text-gray-500 text-[10px] line-through block leading-none mb-0.5">
+                             {new Intl.NumberFormat('vi-VN').format(Math.round(minPrice * 1.36))}{currency.toUpperCase()}
+                           </span>
+                           <span className="text-lg font-bold text-emerald-400 leading-none">
+                             {new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}
+                           </span>
                          </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="grid grid-cols-4 gap-2 border-t border-white/5 pt-3">
+                         <button className="col-span-1 h-9 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white transition-all border border-white/5 hover:border-white/20">
+                            <Eye size={16} />
+                         </button>
+                         <button className="col-span-3 h-9 flex items-center justify-center gap-2 rounded-lg bg-emerald-600/10 text-emerald-500 hover:bg-emerald-600 hover:text-white transition-all border border-emerald-500/20 hover:border-emerald-500 font-medium text-sm">
+                            <ShoppingCart size={16} /> 
+                            <span>Mua ngay</span>
+                         </button>
                       </div>
                     </div>
                   </div>
@@ -416,7 +415,7 @@ const LandingPage: React.FC = () => {
         <ProductModal 
           isOpen={!!selectedProduct} 
           product={selectedProduct} 
-          siteConfig={config}
+          siteConfig={config} 
           socials={socials} 
           onClose={() => setSelectedProduct(null)} 
         />

@@ -62,6 +62,7 @@ const CategorySchema = new mongoose.Schema({
   id: { type: String, unique: true },
   name: String,
   slug: String,
+  iconUrl: String, // Added iconUrl
   order: Number,
   isVisible: Boolean,
   description: String

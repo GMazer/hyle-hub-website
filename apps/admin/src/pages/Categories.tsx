@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../services/api';
 import { Category } from '../../../packages/shared/types';
-import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Image as ImageIcon } from 'lucide-react';
 
 const Categories: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,6 +13,7 @@ const Categories: React.FC = () => {
     name: '',
     slug: '',
     description: '',
+    iconUrl: '',
     order: 0,
     isVisible: true
   });
@@ -42,6 +43,7 @@ const Categories: React.FC = () => {
       name: '',
       slug: '',
       description: '',
+      iconUrl: '',
       order: categories.length + 1,
       isVisible: true
     });
@@ -95,7 +97,7 @@ const Categories: React.FC = () => {
         <table className="w-full text-left border-collapse">
           <thead className="bg-emerald-50 dark:bg-gray-800 text-emerald-700 dark:text-emerald-400 text-sm uppercase">
             <tr>
-              <th className="p-4 font-semibold w-16">ID</th>
+              <th className="p-4 font-semibold w-16">Icon</th>
               <th className="p-4 font-semibold">Tên Danh mục</th>
               <th className="p-4 font-semibold">Slug</th>
               <th className="p-4 font-semibold text-center">Thứ tự</th>
@@ -108,7 +110,15 @@ const Categories: React.FC = () => {
              categories.length === 0 ? <tr><td colSpan={6} className="p-8 text-center text-gray-500">Chưa có danh mục nào.</td></tr> :
              categories.map(cat => (
               <tr key={cat.id} className="hover:bg-emerald-50/50 dark:hover:bg-gray-800 transition-colors">
-                <td className="p-4 text-sm text-gray-500">{cat.id}</td>
+                <td className="p-4">
+                  {cat.iconUrl ? (
+                    <img src={cat.iconUrl} alt="icon" className="w-8 h-8 object-contain" />
+                  ) : (
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-gray-400">
+                      <ImageIcon size={16} />
+                    </div>
+                  )}
+                </td>
                 <td className="p-4 font-medium">{cat.name}</td>
                 <td className="p-4 text-sm text-gray-500">{cat.slug}</td>
                 <td className="p-4 text-center">{cat.order}</td>
@@ -131,7 +141,7 @@ const Categories: React.FC = () => {
 
       {editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-700 animate-in zoom-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-lg border border-gray-200 dark:border-gray-700 animate-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                 {isCreating ? 'Thêm Danh mục Mới' : 'Sửa Danh mục'}
@@ -161,6 +171,24 @@ const Categories: React.FC = () => {
                   className={inputClass}
                   placeholder="cong-cu-ai"
                 />
+              </div>
+
+              <div>
+                <label className={labelClass}>Link Icon (SVG/Image URL)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={formData.iconUrl || ''} 
+                    onChange={e => setFormData({...formData, iconUrl: e.target.value})} 
+                    className={inputClass}
+                    placeholder="https://..."
+                  />
+                  {formData.iconUrl && (
+                    <div className="w-10 h-10 shrink-0 border border-gray-300 dark:border-gray-600 rounded p-1 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <img src={formData.iconUrl} alt="Preview" className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
