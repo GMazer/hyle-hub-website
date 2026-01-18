@@ -28,6 +28,7 @@ export interface Product {
   status: 'published' | 'draft' | 'hidden';
   notes?: string; // Additional conditions like "No refunds"
   isHot?: boolean; // New field for Hot products
+  views?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,4 +69,16 @@ export interface AnalyticsStats {
   todayUnique: number;
   totalViews: number;
   totalUniqueIps: number;
+}
+
+export interface VisitorLog {
+  date: string;
+  hits: number;
+  unique: number;
+}
+
+export interface AnalyticsReport {
+  stats: AnalyticsStats;
+  topProducts: Product[];
+  visitorHistory: VisitorLog[]; // Last 7 days
 }

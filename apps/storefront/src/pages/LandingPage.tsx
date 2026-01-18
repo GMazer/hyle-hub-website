@@ -83,6 +83,11 @@ const LandingPage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    clientApi.trackProductView(product.id);
+  };
+
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -355,7 +360,7 @@ const LandingPage: React.FC = () => {
                return (
                 <div 
                   key={product.id} 
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => handleProductClick(product)}
                   className={`group relative flex flex-col bg-[#1a1d21] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1 h-full ${
                     product.isHot 
                       ? 'border border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.15)]' 

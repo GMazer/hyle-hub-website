@@ -29,14 +29,17 @@ class ClientApi {
     return res.json();
   }
 
-  // New tracking method
+  // Tracking methods
   async trackVisit(): Promise<void> {
     try {
-      // Fire and forget, no need to wait for result
       fetch(`${API_URL}/api/analytics/track`, { method: 'POST' });
-    } catch (e) {
-      // Ignore errors for analytics
-    }
+    } catch (e) {}
+  }
+
+  async trackProductView(productId: string): Promise<void> {
+    try {
+      fetch(`${API_URL}/api/analytics/view-product/${productId}`, { method: 'POST' });
+    } catch (e) {}
   }
 }
 

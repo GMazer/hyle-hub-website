@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
@@ -5,6 +6,7 @@ import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
+import Analytics from './pages/Analytics';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isAuth = localStorage.getItem('isAuthenticated') === 'true';
@@ -25,6 +27,7 @@ const App: React.FC = () => {
         {/* Protected Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
           <Route index element={<Dashboard />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="categories" element={<Categories />} />
           <Route path="products" element={<Products />} />
         </Route>

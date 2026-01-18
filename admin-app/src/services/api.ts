@@ -1,5 +1,5 @@
 
-import { Product, Category, SiteConfig, SocialLink, AnalyticsStats } from '../types';
+import { Product, Category, SiteConfig, SocialLink, AnalyticsStats, AnalyticsReport } from '../types';
 
 // Points to the Node.js Backend on Render
 const RAW_URL = (import.meta as any).env?.VITE_API_URL || 'https://hyle-hub-website.onrender.com';
@@ -25,6 +25,15 @@ class AdminApi {
       headers: this.getHeaders()
     });
     if (!res.ok) throw new Error('Failed to fetch analytics');
+    return res.json();
+  }
+
+  async getDetailedAnalytics(): Promise<AnalyticsReport> {
+    const res = await fetch(`${API_URL}/api/analytics/report`, {
+      method: 'GET',
+      headers: this.getHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to fetch detailed report');
     return res.json();
   }
 

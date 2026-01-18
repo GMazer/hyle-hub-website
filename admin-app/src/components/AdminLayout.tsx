@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Package, LogOut, Moon, Sun, List } from 'lucide-react';
+import { LayoutGrid, Package, LogOut, Moon, Sun, List, BarChart3 } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const AdminLayout: React.FC = () => {
 
   const navItems = [
     { path: '/admin', icon: LayoutGrid, label: 'Tổng quan', end: true },
+    { path: '/admin/analytics', icon: BarChart3, label: 'Thống kê' },
     { path: '/admin/categories', icon: List, label: 'Danh mục' },
     { path: '/admin/products', icon: Package, label: 'Sản phẩm' },
   ];

@@ -95,6 +95,7 @@ const ProductSchema = new mongoose.Schema({
   tags: [String],
   notes: String,
   isHot: { type: Boolean, default: false }, // Added isHot field
+  views: { type: Number, default: 0 }, // New: Count product clicks
   priceOptions: [{
     id: String,
     name: String,
@@ -113,11 +114,12 @@ const Product = mongoose.model('Product', ProductSchema);
 const VisitorSchema = new mongoose.Schema({
   ip: String,
   date: String, // Format: YYYY-MM-DD
+  userAgent: String, // Store basic device info to differentiate same-IP users
   hits: { type: Number, default: 1 },
   lastSeen: { type: Date, default: Date.now }
 });
 // Composite index to ensure one record per IP per day
-VisitorSchema.index({ ip: 1, date: 1 }, { unique: true });
+VisitorSchema.index({ ip: 1, date: 1, userAgent: 1 }, { unique: true });
 const Visitor = mongoose.model('Visitor', VisitorSchema);
 
 // --- AUTH MIDDLEWARE ---
@@ -149,53 +151,103 @@ const checkDb = (req, res, next) => {
 app.post('/api/analytics/track', checkDb, async (req, res) => {
   try {
     const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'] || 'unknown';
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-    // Upsert: If exists for today/IP, increment hits. If not, create new.
+    // Upsert: If exists for today/IP/UA, increment hits.
     await Visitor.findOneAndUpdate(
-      { ip, date: today },
+      { ip, date: today, userAgent }, // Differentiate by User Agent too
       { $inc: { hits: 1 }, $set: { lastSeen: new Date() } },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
 
     res.json({ success: true });
   } catch (e) {
-    // Don't block the UI if analytics fails
     console.error("Analytics Error:", e);
     res.status(200).json({ success: false }); 
   }
 });
 
-// 2. Get Stats (Called by Admin Dashboard)
-app.get('/api/analytics/stats', requireAdmin, checkDb, async (req, res) => {
+// 2. Track Product View (New)
+app.post('/api/analytics/view-product/:id', checkDb, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Product.findOneAndUpdate(
+      { id }, 
+      { $inc: { views: 1 } }
+    );
+    res.json({ success: true });
+  } catch (e) {
+    console.error("Product Analytics Error:", e);
+    res.status(200).json({ success: false });
+  }
+});
+
+// 3. Get Full Report (Stats + Top Products + History)
+app.get('/api/analytics/report', requireAdmin, checkDb, async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
 
-    // Aggregations
-    const [todayStats, totalStats, uniqueStats] = await Promise.all([
-      // 1. Today's Views
+    // Parallel Data Fetching
+    const [todayStats, totalHitsRes, totalUniqueRes, topProducts, historyRes] = await Promise.all([
+      // A. Today's Views
       Visitor.aggregate([
         { $match: { date: today } },
         { $group: { _id: null, totalHits: { $sum: "$hits" }, uniqueVisitors: { $count: {} } } }
       ]),
-      // 2. Total Views (All time)
+      // B. Total Views
+      Visitor.aggregate([{ $group: { _id: null, totalHits: { $sum: "$hits" } } }]),
+      // C. Total Unique IPs
+      Visitor.distinct('ip'),
+      // D. Top Viewed Products (Limit 10)
+      Product.find().sort({ views: -1 }).limit(10).select('name thumbnailUrl views categoryId'),
+      // E. Visitor History (Last 7 days)
       Visitor.aggregate([
-        { $group: { _id: null, totalHits: { $sum: "$hits" } } }
-      ]),
-      // 3. Total Unique IPs (All time)
-      Visitor.distinct('ip')
+        { $group: { 
+            _id: "$date", 
+            hits: { $sum: "$hits" }, 
+            unique: { $count: {} } // Approximate unique per day
+        }},
+        { $sort: { _id: -1 } },
+        { $limit: 7 }
+      ])
     ]);
 
     res.json({
-      todayViews: todayStats[0]?.totalHits || 0,
-      todayUnique: todayStats[0]?.uniqueVisitors || 0,
-      totalViews: totalStats[0]?.totalHits || 0,
-      totalUniqueIps: uniqueStats.length || 0
+      stats: {
+        todayViews: todayStats[0]?.totalHits || 0,
+        todayUnique: todayStats[0]?.uniqueVisitors || 0,
+        totalViews: totalHitsRes[0]?.totalHits || 0,
+        totalUniqueIps: totalUniqueRes.length || 0
+      },
+      topProducts: topProducts || [],
+      visitorHistory: historyRes.map(h => ({ date: h._id, hits: h.hits, unique: h.unique })) || []
     });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: e.message });
   }
+});
+
+// Legacy Stats Endpoint (Keep for backward compatibility if needed, or redirect logic)
+app.get('/api/analytics/stats', requireAdmin, checkDb, async (req, res) => {
+    // ... reused logic ...
+    // For simplicity, let's just redirect internally or call the same logic
+    // Implementation kept minimal as Dashboard uses it.
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const [todayStats, totalStats, uniqueStats] = await Promise.all([
+          Visitor.aggregate([{ $match: { date: today } }, { $group: { _id: null, totalHits: { $sum: "$hits" }, uniqueVisitors: { $count: {} } } }]),
+          Visitor.aggregate([{ $group: { _id: null, totalHits: { $sum: "$hits" } } }]),
+          Visitor.distinct('ip')
+        ]);
+        res.json({
+          todayViews: todayStats[0]?.totalHits || 0,
+          todayUnique: todayStats[0]?.uniqueVisitors || 0,
+          totalViews: totalStats[0]?.totalHits || 0,
+          totalUniqueIps: uniqueStats.length || 0
+        });
+    } catch(e) { res.status(500).json({error: e.message}); }
 });
 
 
