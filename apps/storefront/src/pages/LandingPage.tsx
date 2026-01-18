@@ -17,9 +17,11 @@ const GalaxyRive = () => {
   // Use Vite's BASE_URL to ensure correct pathing in production/sub-paths
   // File MUST exist at public/galaxy.riv
   
-  // @ts-ignore
   const baseUrl = import.meta.env?.BASE_URL || '/';
-  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
+  const rivePath =
+    typeof window !== 'undefined'
+      ? new URL('galaxy.riv', `${window.location.origin}${baseUrl}`).toString()
+      : `${baseUrl}galaxy.riv`;
 
   const { RiveComponent } = useRive({
     src: rivePath, 
