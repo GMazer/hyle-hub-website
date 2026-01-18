@@ -1,133 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
-import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-react';
+import { Search, Sparkles, Star, Eye, ShoppingCart, Clock, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
 
-// --- VISUAL COMPONENTS ---
+// --- CSS VISUAL COMPONENTS ---
 
-// 1. StarField: Generates static stars with CSS animations
-const StarField = React.memo(() => {
-  return (
-    <div className="absolute inset-0 z-0">
-      {/* Layer 1: Small distant stars (Slow) */}
-      {[...Array(100)].map((_, i) => (
-        <div
-          key={`s1-${i}`}
-          className="star"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: '1px',
-            height: '1px',
-            '--duration': `${Math.random() * 5 + 10}s`,
-            '--opacity': `${Math.random() * 0.5 + 0.1}`
-          } as any}
-        />
-      ))}
-      {/* Layer 2: Medium stars (Medium) */}
-      {[...Array(50)].map((_, i) => (
-        <div
-          key={`s2-${i}`}
-          className="star"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: '2px',
-            height: '2px',
-            '--duration': `${Math.random() * 3 + 5}s`,
-            '--opacity': `${Math.random() * 0.7 + 0.3}`
-          } as any}
-        />
-      ))}
-      {/* Layer 3: Bright twinkling stars (Fast) */}
-      {[...Array(15)].map((_, i) => (
-        <div
-          key={`s3-${i}`}
-          className="star"
-          style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            width: '3px',
-            height: '3px',
-            boxShadow: '0 0 4px rgba(255,255,255,0.8)',
-            '--duration': `${Math.random() * 2 + 2}s`,
-            '--opacity': `${Math.random() * 0.5 + 0.5}`
-          } as any}
-        />
-      ))}
-    </div>
-  );
-});
+const CssSpaceBackground = () => (
+  <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#050914]">
+    {/* 1. Base Gradient Glows (Deep Ambient) */}
+    <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-emerald-900/20 rounded-full blur-[120px] mix-blend-screen opacity-60"></div>
+    <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-indigo-900/20 rounded-full blur-[120px] mix-blend-screen opacity-60"></div>
 
-// 2. SpaceBackground: Combines Gradients, Enhanced Nebulas, Planets, and StarField
-const SpaceBackground = React.memo(() => {
-  return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#030712]">
-       {/* Inject custom keyframes for planet floating */}
-       <style>{`
-         @keyframes float-planet {
-           0%, 100% { transform: translateY(0) rotate(0deg); }
-           50% { transform: translateY(-20px) rotate(2deg); }
-         }
-         @keyframes float-planet-reverse {
-           0%, 100% { transform: translateY(0) rotate(0deg); }
-           50% { transform: translateY(15px) rotate(-3deg); }
-         }
-         .animate-float-planet { animation: float-planet 10s ease-in-out infinite; }
-         .animate-float-planet-slow { animation: float-planet-reverse 18s ease-in-out infinite; }
-         .animate-float-planet-fast { animation: float-planet 8s ease-in-out infinite; }
-       `}</style>
+    {/* 2. Dot Grid Pattern (Enhanced Visibility) */}
+    <div 
+      className="absolute inset-0 z-0"
+      style={{
+        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.15) 1.5px, transparent 0)',
+        backgroundSize: '40px 40px',
+        maskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 40%, transparent 100%)' // Fade out at bottom
+      }}
+    />
+  </div>
+);
 
-       {/* Base Gradient - Deep Space */}
-       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-[#050a1f] to-[#02040a]"></div>
-       
-       {/* --- ENHANCED NEBULA BLOBS (6 Blobs) --- */}
-       {/* 1. Top Left - Emerald */}
-       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-emerald-500/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob opacity-40"></div>
-       {/* 2. Top Right - Indigo */}
-       <div className="absolute top-[5%] right-[-10%] w-[45vw] h-[45vw] bg-indigo-500/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000 opacity-40"></div>
-       {/* 3. Bottom Left - Purple */}
-       <div className="absolute bottom-[-10%] left-[10%] w-[55vw] h-[55vw] bg-purple-600/15 rounded-full mix-blend-screen filter blur-[120px] animate-blob animation-delay-4000 opacity-30"></div>
-       {/* 4. Center Right - Pink/Rose (NEW) */}
-       <div className="absolute top-[40%] right-[-5%] w-[40vw] h-[40vw] bg-rose-500/10 rounded-full mix-blend-screen filter blur-[90px] animate-blob animation-delay-2000 opacity-30"></div>
-       {/* 5. Bottom Center - Cyan (NEW) */}
-       <div className="absolute bottom-[-20%] left-[40%] w-[50vw] h-[50vw] bg-cyan-500/10 rounded-full mix-blend-screen filter blur-[110px] animate-blob opacity-25"></div>
-       {/* 6. Top Center - Amber (NEW - Subtle warmth) */}
-       <div className="absolute top-[-20%] left-[30%] w-[60vw] h-[40vw] bg-amber-500/5 rounded-full mix-blend-screen filter blur-[130px] animate-blob animation-delay-4000 opacity-20"></div>
-
-       {/* Texture Overlays */}
-       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:40px_40px] [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
-       
-       {/* --- PLANETS --- */}
-       
-       {/* Planet 1: Ringed Planet (Top Right - behind text) */}
-       <div className="absolute top-[12%] right-[8%] w-28 h-28 md:w-48 md:h-48 opacity-60 animate-float-planet-slow z-0">
-          {/* Body */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-indigo-300 to-slate-900 shadow-[inset_-10px_-10px_30px_rgba(0,0,0,0.6)]"></div>
-          {/* Atmosphere Glow */}
-          <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-xl"></div>
-          {/* Ring */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[40%] border-[6px] md:border-[10px] border-slate-400/10 border-t-slate-300/30 border-l-slate-300/30 rounded-[50%] rotate-[-25deg] shadow-[0_0_20px_rgba(255,255,255,0.05)]"></div>
-       </div>
-
-       {/* Planet 2: Ice Giant (Bottom Left) */}
-       <div className="absolute bottom-[25%] left-[-2%] w-32 h-32 md:w-56 md:h-56 opacity-50 animate-float-planet z-0">
-          <div className="w-full h-full rounded-full bg-gradient-to-tr from-cyan-900 via-cyan-700 to-teal-400 shadow-[0_0_60px_rgba(34,211,238,0.15)] blur-[0.5px]"></div>
-       </div>
-
-       {/* Planet 3: Distant Moon (Top Left) */}
-       <div className="absolute top-[18%] left-[15%] w-8 h-8 md:w-12 md:h-12 opacity-80 animate-float-planet-fast z-0">
-           <div className="w-full h-full rounded-full bg-gray-100 shadow-[inset_-3px_-3px_6px_rgba(0,0,0,0.8)]"></div>
-       </div>
-
-       {/* Stars */}
-       <StarField />
-    </div>
-  );
-});
+const FourPointStar: React.FC<{ className?: string, delay?: string, style?: React.CSSProperties }> = ({ className, delay, style }) => (
+  <div className={`absolute animate-twinkle text-white ${className}`} style={{ animationDelay: delay, ...style }}>
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full drop-shadow-[0_0_8px_rgba(255,255,255,1)]">
+      <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+    </svg>
+  </div>
+);
 
 const LandingPage: React.FC = () => {
   const [config, setConfig] = useState<SiteConfig | null>(null);
@@ -172,90 +78,185 @@ const LandingPage: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-emerald-400 font-medium bg-gray-950">Đang tải dữ liệu...</div>;
-  if (!config) return <div className="min-h-screen flex items-center justify-center text-gray-200 bg-gray-950">Không thể tải cấu hình (Hãy kiểm tra Backend)</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-emerald-400 font-medium bg-[#020617]">Đang tải dữ liệu...</div>;
+  if (!config) return <div className="min-h-screen flex items-center justify-center text-gray-200 bg-[#020617]">Không thể tải cấu hình (Hãy kiểm tra Backend)</div>;
 
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#020617] flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30 relative overflow-x-hidden">
       
-      {/* 1. Global Space Background (Fixed) */}
-      <SpaceBackground />
+      {/* 1. Global CSS Space Background */}
+      <CssSpaceBackground />
       
       {/* 2. Content Layer */}
       <div className="relative z-10 flex flex-col min-h-screen">
 
-        {/* Navbar */}
-        <nav className="bg-gray-950/70 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 supports-[backdrop-filter]:bg-gray-950/40">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
-               <div className="flex items-center gap-3">
-                  <Logo className="h-9 w-9 shadow-lg shadow-emerald-500/20 rounded-full" />
-                  <span className="font-extrabold text-xl text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200 tracking-tight">{config.siteName}</span>
-               </div>
-               <div className="flex items-center gap-4">
-               </div>
-            </div>
+        {/* --- CUSTOM HERO SECTION --- */}
+        <header className="relative w-full pt-6 pb-20 md:py-24 border-b border-white/5 bg-gradient-to-b from-transparent to-[#020617]/50">
+          
+          {/* Top Left Branding */}
+          <div className="absolute top-6 left-6 z-50 flex items-center gap-3">
+             <div className="p-2 bg-emerald-500/10 rounded-xl border border-emerald-500/30 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                <Logo className="w-6 h-6" />
+             </div>
+             <span className="font-bold text-lg text-emerald-400 hidden md:block tracking-wide drop-shadow-[0_0_10px_rgba(52,211,153,0.5)] font-orbitron">HyleHub Store</span>
           </div>
-        </nav>
 
-        {/* Hero Section */}
-        <div className="relative border-b border-white/5 overflow-hidden">
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 text-center z-10">
-            
-            {/* Glowing effect behind Logo */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-emerald-500/10 filter blur-[80px] rounded-full pointer-events-none"></div>
+          {/* HERO CONTENT CONTAINER */}
+          <div className="relative max-w-[1400px] mx-auto min-h-[500px] flex flex-col justify-center items-center px-4">
 
-            <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight mb-8 flex flex-col items-center gap-6">
-              <Logo className="h-24 w-24 md:h-36 md:w-36 shadow-[0_0_50px_-12px_rgba(16,185,129,0.5)] rounded-full animate-float" />
-              
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white via-gray-100 to-gray-300 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] filter">
-                {config.siteName}
-              </span>
-            </h1>
-            
-            {config.tagline && (
-              <p className="text-lg md:text-2xl text-gray-100 mb-12 font-medium max-w-2xl mx-auto leading-relaxed drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)]">
-                {config.tagline}
-              </p>
-            )}
-            
-            <div className="flex flex-wrap justify-center gap-4">
-              {socials.map(social => (
-                <a 
-                  key={social.id}
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group flex items-center gap-2 px-6 py-3 bg-gray-800/60 hover:bg-gray-800/90 border border-white/10 hover:border-emerald-500/50 rounded-full text-gray-300 transition-all duration-300 font-semibold text-sm backdrop-blur-md shadow-lg hover:shadow-emerald-500/20 hover:-translate-y-1"
+             {/* --- PLANETS & DECORATIONS --- */}
+             
+             {/* 1. Teal Planet (Top Left) - Smooth Atmosphere */}
+             <div className="absolute top-[5%] left-[-5%] md:left-[8%] md:top-[10%] animate-float pointer-events-none">
+                <div 
+                  className="w-28 h-28 md:w-40 md:h-40 rounded-full relative overflow-hidden"
+                  style={{
+                    background: 'radial-gradient(circle at 30% 30%, #5eead4 0%, #0f766e 40%, #134e4a 100%)',
+                    boxShadow: 'inset -10px -10px 30px rgba(0,0,0,0.8), 0 0 40px rgba(45,212,191,0.2)'
+                  }}
                 >
-                  <DynamicIcon name={social.iconName} size={18} className="text-emerald-500 group-hover:text-emerald-400 transition-colors"/>
-                  <span className="group-hover:text-white transition-colors">{social.platform}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </div>
+                   {/* Atmosphere Haze */}
+                   <div className="absolute inset-0 rounded-full border-[1px] border-teal-200/20 mix-blend-overlay"></div>
+                   {/* Specular Highlight */}
+                   <div className="absolute top-6 left-6 w-12 h-8 bg-white/10 blur-xl rounded-full transform -rotate-45"></div>
+                </div>
+                <FourPointStar className="w-6 h-6 top-0 right-[-10px] text-teal-100" delay="0s" />
+             </div>
 
-        {/* Notices */}
-        {config.notices.length > 0 && (
-          <div className="bg-emerald-950/30 border-y border-emerald-500/20 backdrop-blur-md relative overflow-hidden">
-            <div className="absolute inset-0 bg-emerald-500/5 animate-pulse-slow"></div>
-            <div className="max-w-[1400px] mx-auto px-4 py-3 flex flex-wrap gap-x-8 gap-y-2 justify-center text-sm font-medium text-emerald-100 relative z-10">
-               {config.notices.map((notice, idx) => (
-                 <div key={idx} className="flex items-center gap-2">
-                   <AlertCircle size={14} className="text-emerald-400"/>
-                   <span>{notice}</span>
-                 </div>
-               ))}
-            </div>
+             {/* 2. Purple Ringed Planet (Top Right) - Banded Texture */}
+             <div className="absolute top-[0%] right-[-20%] md:right-[5%] md:top-[5%] animate-float-delayed pointer-events-none z-0">
+                <div className="relative w-64 h-64 md:w-80 md:h-80">
+                    {/* Ring (Back Half) */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-[6px] md:border-[10px] border-purple-400/10 rounded-[50%] rotate-[-25deg]"></div>
+                    
+                    {/* Planet Body */}
+                    <div 
+                      className="absolute inset-4 rounded-full overflow-hidden z-10"
+                      style={{
+                        background: 'linear-gradient(135deg, #a855f7 0%, #6b21a8 50%, #3b0764 100%)',
+                        boxShadow: 'inset -20px -20px 60px rgba(0,0,0,0.9), 0 0 70px rgba(168,85,247,0.3)'
+                      }}
+                    >
+                       {/* Texture Bands (Stripes) */}
+                       <div className="absolute top-[20%] left-[-10%] w-[120%] h-[10%] bg-purple-400/10 blur-sm rotate-[-15deg]"></div>
+                       <div className="absolute top-[40%] left-[-10%] w-[120%] h-[5%] bg-indigo-500/20 blur-sm rotate-[-15deg]"></div>
+                       <div className="absolute top-[60%] left-[-10%] w-[120%] h-[15%] bg-purple-900/30 blur-md rotate-[-15deg]"></div>
+                       
+                       {/* Rim Light */}
+                       <div className="absolute inset-0 rounded-full ring-1 ring-white/20"></div>
+                    </div>
+
+                    {/* Ring (Front Half) */}
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-t-[6px] md:border-t-[10px] border-l-[2px] border-r-[2px] border-b-transparent border-purple-300/30 rounded-[50%] rotate-[-25deg] z-20 opacity-80"></div>
+                </div>
+             </div>
+
+             {/* 3. Orange Planet (Bottom Left) - Craters & Texture */}
+             <div className="absolute bottom-[-15%] left-[-15%] md:left-[8%] md:bottom-[-8%] animate-float pointer-events-none z-10">
+                <div 
+                  className="w-48 h-48 md:w-56 md:h-56 rounded-full relative overflow-hidden"
+                  style={{
+                    background: 'radial-gradient(circle at 40% 40%, #fb923c 0%, #c2410c 50%, #7c2d12 100%)',
+                    boxShadow: 'inset -15px -15px 50px rgba(0,0,0,0.8), 0 0 50px rgba(249,115,22,0.25)'
+                  }}
+                >
+                   {/* Crater 1 (Big) */}
+                   <div className="absolute top-[25%] left-[20%] w-14 h-10 bg-[#9a3412] rounded-full opacity-60 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6),1px_1px_0_rgba(255,255,255,0.1)] rotate-[-10deg]"></div>
+                   {/* Crater 2 (Medium) */}
+                   <div className="absolute bottom-[30%] right-[25%] w-8 h-8 bg-[#7c2d12] rounded-full opacity-70 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.7)]"></div>
+                   {/* Crater 3 (Small) */}
+                   <div className="absolute top-[60%] left-[15%] w-4 h-4 bg-[#7c2d12] rounded-full opacity-50 shadow-inner"></div>
+                   
+                   {/* Texture Noise Overlay (Simulated with grain if possible, simple here) */}
+                   <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+                </div>
+                 <FourPointStar className="w-8 h-8 top-[-25px] right-[25px] text-orange-100 drop-shadow-[0_0_10px_rgba(255,165,0,0.8)]" delay="1s" />
+             </div>
+
+             {/* 4. Extra Sparkles */}
+             <div className="absolute bottom-[20%] right-[15%] w-4 h-4 rounded-full bg-emerald-500 blur-[2px] shadow-[0_0_15px_rgba(16,185,129,0.8)] animate-pulse-slow"></div>
+             <FourPointStar className="w-5 h-5 top-[22%] left-[28%] text-white" delay="2.5s" />
+             <FourPointStar className="w-3 h-3 top-[18%] right-[32%] text-white/60" delay="3.8s" />
+             <FourPointStar className="w-6 h-6 bottom-[35%] left-[42%] text-emerald-200" delay="1.2s" />
+
+
+             {/* --- CENTER TEXT CONTENT --- */}
+             <div className="relative z-20 flex flex-col items-center text-center max-w-3xl mx-auto mt-10 md:mt-0">
+                
+                {/* Logo & Brand - Massive Green Glow */}
+                <div className="mb-8 animate-float relative group">
+                   <div className="absolute inset-0 bg-emerald-500/50 blur-[80px] rounded-full group-hover:bg-emerald-500/60 transition-all duration-700"></div>
+                   <div className="relative z-10">
+                      <Logo className="w-28 h-28 md:w-36 md:h-36 drop-shadow-[0_0_35px_rgba(16,185,129,0.8)]" />
+                   </div>
+                </div>
+
+                {/* Main Title - Strong Glow & Tech Font */}
+                <h1 className="text-5xl md:text-8xl font-black text-white tracking-wider mb-4 font-orbitron drop-shadow-[0_0_30px_rgba(16,185,129,0.8)] uppercase">
+                  HyleHub Store
+                </h1>
+
+                {/* Subtitle - Single Line */}
+                <p className="text-gray-300 text-sm md:text-2xl font-normal mb-10 w-full max-w-none whitespace-nowrap overflow-hidden text-ellipsis mx-auto px-4 leading-relaxed">
+                   Cung cấp các loại tài khoản <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.4)]">AI Pro Premium Ultra</span> giá rẻ
+                </p>
+
+                {/* Social Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+                   
+                   {/* Instagram */}
+                   <a href="https://instagram.com/hylehub" target="_blank" rel="noreferrer" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#1e2025]/60 hover:bg-[#25282e] border border-white/10 hover:border-pink-500/50 rounded-2xl transition-all group backdrop-blur-md shadow-lg hover:shadow-pink-500/10">
+                      <DynamicIcon name="Instagram" className="text-pink-500 group-hover:scale-110 transition-transform w-5 h-5 drop-shadow-[0_0_8px_rgba(236,72,153,0.5)]" />
+                      <span className="font-semibold text-gray-200 group-hover:text-white">Instagram</span>
+                   </a>
+
+                   {/* Facebook */}
+                   <a href="#" target="_blank" rel="noreferrer" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#1e2025]/60 hover:bg-[#25282e] border border-white/10 hover:border-blue-600/50 rounded-2xl transition-all group backdrop-blur-md shadow-lg hover:shadow-blue-600/10">
+                      <DynamicIcon name="Facebook" className="text-blue-600 group-hover:scale-110 transition-transform w-5 h-5 drop-shadow-[0_0_8px_rgba(37,99,235,0.5)]" />
+                      <span className="font-semibold text-gray-200 group-hover:text-white">Facebook</span>
+                   </a>
+
+                   {/* Telegram */}
+                   <a href="https://t.me/hylehub" target="_blank" rel="noreferrer" className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-[#1e2025]/60 hover:bg-[#25282e] border border-white/10 hover:border-sky-500/50 rounded-2xl transition-all group backdrop-blur-md shadow-lg hover:shadow-sky-500/10">
+                      <DynamicIcon name="Telegram" className="text-sky-500 group-hover:scale-110 transition-transform w-5 h-5 drop-shadow-[0_0_8px_rgba(14,165,233,0.5)]" />
+                      <span className="font-semibold text-gray-200 group-hover:text-white">Telegram</span>
+                   </a>
+                </div>
+             </div>
           </div>
-        )}
+
+          {/* --- BOTTOM INFO BAR --- */}
+          <div className="absolute bottom-0 left-0 right-0 bg-[#0b101b]/80 backdrop-blur-xl border-t border-white/5 py-4 z-30 shadow-[0_-5px_20px_rgba(0,0,0,0.2)]">
+             <div className="max-w-[1400px] mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-8 text-sm text-gray-400 font-medium">
+                
+                <div className="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                   <div className="p-1 bg-emerald-500/20 rounded-full text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.2)]"><Clock size={14} /></div>
+                   <span>Hỗ trợ kỹ thuật: 8:00 - 22:00 hàng ngày</span>
+                </div>
+                
+                <div className="hidden md:block w-px h-5 bg-white/10"></div>
+                
+                <div className="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                   <div className="p-1 bg-emerald-500/20 rounded-full text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.2)]"><ShieldCheck size={14} /></div>
+                   <span>Bảo hành nhanh chóng</span>
+                </div>
+                
+                <div className="hidden md:block w-px h-5 bg-white/10"></div>
+                
+                <div className="flex items-center gap-3 bg-white/5 px-4 py-1.5 rounded-full md:bg-transparent md:p-0 border border-white/5 md:border-none">
+                   <div className="p-1 bg-emerald-500/20 rounded-full text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.2)]"><CheckCircle2 size={14} /></div>
+                   <span>Sản phẩm chuẩn chất lượng</span>
+                </div>
+
+             </div>
+          </div>
+        </header>
 
         {/* Main Content */}
         <main className="flex-grow max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full z-10">
           
           {/* Controls */}
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-10 sticky top-16 z-30 bg-gray-950/80 backdrop-blur-xl py-4 -mx-4 px-4 md:mx-0 md:px-6 rounded-2xl border border-white/5 shadow-2xl transition-all duration-200">
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-10 sticky top-4 z-30 bg-gray-900/80 backdrop-blur-xl py-4 -mx-4 px-4 md:mx-0 md:px-6 rounded-2xl border border-white/5 shadow-2xl transition-all duration-200">
             
             <div className="flex overflow-x-auto pb-2 md:pb-0 gap-2 w-full md:w-auto hide-scrollbar">
               <button
@@ -310,22 +311,23 @@ const LandingPage: React.FC = () => {
                 <div 
                   key={product.id} 
                   onClick={() => setSelectedProduct(product)}
-                  className="group flex flex-col bg-gray-900/50 rounded-2xl overflow-hidden border border-white/5 hover:border-emerald-500/50 cursor-pointer transition-colors duration-200 hover:shadow-lg h-full relative"
+                  className="group flex flex-col bg-gray-900/40 rounded-2xl overflow-hidden border border-white/5 hover:border-emerald-500/40 cursor-pointer transition-colors duration-200 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] h-full relative"
                 >
                   {/* Glass highlight effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
                   {/* Image Section */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-900/50">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-800/50 p-6 flex items-center justify-center">
+                     <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900/80 z-0"></div>
                      <img 
                       src={product.thumbnailUrl} 
                       alt={product.name}
-                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-contain relative z-10 transform transition-transform duration-500 group-hover:scale-110 drop-shadow-2xl"
                       loading="lazy"
                     />
                     
                     {/* Sale Badge (Top Right) */}
-                    <div className="absolute top-0 right-4 z-10">
+                    <div className="absolute top-0 right-4 z-20">
                        <div className="bg-yellow-400 text-gray-950 text-[10px] font-bold px-2 py-1.5 rounded-b shadow-lg flex flex-col items-center leading-none border-x border-b border-yellow-200/50">
                          <span className="mb-0.5">SALE</span>
                          <span>36%</span>
@@ -333,7 +335,7 @@ const LandingPage: React.FC = () => {
                     </div>
 
                     {/* Status Tag (Top Left) */}
-                    <div className="absolute top-3 left-3 z-10">
+                    <div className="absolute top-3 left-3 z-20">
                        <span className="px-2 py-1 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider rounded shadow-lg border border-emerald-400/30">
                         {product.tags[0] || 'HOT'}
                       </span>
@@ -341,7 +343,7 @@ const LandingPage: React.FC = () => {
                   </div>
 
                   {/* Content Section */}
-                  <div className="p-4 flex flex-col flex-1 relative z-10">
+                  <div className="p-4 flex flex-col flex-1 relative z-10 bg-gray-900/20 backdrop-blur-sm">
                     <h3 className="text-lg font-bold text-gray-100 uppercase mb-1 line-clamp-2 leading-tight group-hover:text-emerald-400 transition-colors drop-shadow-sm">
                       {product.name}
                     </h3>
