@@ -1,44 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { clientApi } from '../services/clientApi';
 import { SiteConfig, Category, Product, SocialLink } from '../../../packages/shared/types';
 import { Search, AlertCircle, Sparkles, Star, Eye, ShoppingCart } from 'lucide-react';
 import { DynamicIcon } from '../components/ui/Icons';
 import ProductModal from '../components/public/ProductModal';
 import Logo from '../components/ui/Logo';
-import { useRive } from '@rive-app/react-canvas';
+// import { useRive } from '@rive-app/react-canvas'; // No longer using hook
 import * as RiveCanvasModule from '@rive-app/canvas';
 
 // Safely extract classes whether they are on default or named exports
 const RiveCanvas = (RiveCanvasModule as any).default || RiveCanvasModule;
-const { Layout, Fit, Alignment } = RiveCanvas;
+const { Layout, Fit, Alignment, Rive } = RiveCanvas;
 
 // Helper component for Rive Animation
 const GalaxyRive = () => {
-  // Fix: Vite serves the contents of 'public/' at the root URL '/'.
-  // Even in Dev mode, accessing /public/file often redirects to HTML/404.
-  // We must access it as /galaxy.riv
-  
-  // @ts-ignore
-  const env = import.meta.env || {};
-  const baseUrl = env.BASE_URL || '/';
-  
-  // Construct path: /galaxy.riv
-  const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const { RiveComponent } = useRive({
-    src: rivePath, 
-    autoplay: true,
-    layout: new Layout({
-      fit: Fit.Cover,
-      alignment: Alignment.Center,
-    }),
-    onLoad: () => console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`),
-    onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}. Ensure 'galaxy.riv' exists in the 'public' folder.`, e)
-  });
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    // Fix: Vite serves the contents of 'public/' at the root URL '/'.
+    // We must access it as /galaxy.riv
+    
+    // @ts-ignore
+    const env = import.meta.env || {};
+    const baseUrl = env.BASE_URL || '/';
+    // Construct path: /galaxy.riv
+    const rivePath = `${baseUrl}galaxy.riv`.replace('//', '/');
+
+    const r = new Rive({
+      src: rivePath,
+      canvas: canvasRef.current,
+      autoplay: true,
+      layout: new Layout({
+        fit: Fit.Cover,
+        alignment: Alignment.Center,
+      }),
+      onLoad: () => {
+        console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`);
+        r.resizeDrawingSurfaceToCanvas();
+      },
+      onLoadError: (e: any) => console.error(`[GalaxyRive] Failed to load from ${rivePath}.`, e)
+    });
+
+    const handleResize = () => r.resizeDrawingSurfaceToCanvas();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      // Clean up Rive instance
+      if (r) {
+        r.stop();
+        // Check if cleanup method exists (depends on version)
+        if (typeof r.cleanup === 'function') r.cleanup();
+      }
+    };
+  }, []);
 
   return (
     <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-      <RiveComponent className="w-full h-full block" />
+      <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
 };
