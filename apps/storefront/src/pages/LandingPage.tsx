@@ -19,32 +19,81 @@ const GalaxyRive = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    // Based on index.html using /public/logohylehub.svg, we use the /public prefix here too.
-    const rivePath = '/public/galaxy.riv';
+    let isActive = true;
 
-    const r = new Rive({
-      src: rivePath,
-      canvas: canvasRef.current,
-      autoplay: true,
-      layout: new Layout({
-        fit: Fit.Cover,
-        alignment: Alignment.Center,
-      }),
-      onLoad: () => {
-        // console.log(`[GalaxyRive] Loaded successfully from ${rivePath}`);
-        r.resizeDrawingSurfaceToCanvas();
-      },
-      onLoadError: (e: any) => {
-        console.warn(`[GalaxyRive] Failed to load from ${rivePath}. Checking file existence...`, e);
+    const loadRiveAnimation = async () => {
+      // List of possible paths to try. 
+      // Vite typically serves 'public' at root ('/galaxy.riv'), but sometimes it might need '/public/' prefix depending on setup.
+      const candidatePaths = [
+        '/galaxy.riv',
+        '/public/galaxy.riv',
+        'galaxy.riv'
+      ];
+
+      let validBuffer: ArrayBuffer | null = null;
+      let usedPath = '';
+
+      for (const path of candidatePaths) {
+        try {
+          const response = await fetch(path);
+          if (response.ok) {
+            const contentType = response.headers.get('content-type');
+            // Check if we accidentally got the index.html fallback (common Vite behavior for 404s)
+            if (contentType && contentType.includes('text/html')) {
+              continue; // Skip this path, it's not the binary file
+            }
+            validBuffer = await response.arrayBuffer();
+            usedPath = path;
+            break; // Found it!
+          }
+        } catch (err) {
+          // Ignore fetch errors and try next path
+        }
       }
-    });
-    
-    riveInstance.current = r;
 
-    const handleResize = () => r.resizeDrawingSurfaceToCanvas();
+      if (!isActive) return;
+
+      if (!validBuffer) {
+        console.error(`[GalaxyRive] Failed to load 'galaxy.riv' from paths: ${candidatePaths.join(', ')}. Please ensure the file exists in the 'public' folder.`);
+        return;
+      }
+
+      console.log(`[GalaxyRive] Successfully loaded buffer from: ${usedPath}`);
+
+      try {
+        const r = new Rive({
+          buffer: validBuffer, // Load from memory buffer instead of URL to avoid re-fetching issues
+          canvas: canvasRef.current!,
+          autoplay: true,
+          layout: new Layout({
+            fit: Fit.Cover,
+            alignment: Alignment.Center,
+          }),
+          onLoad: () => {
+            r.resizeDrawingSurfaceToCanvas();
+          },
+          onLoadError: (e: any) => {
+            console.error('[GalaxyRive] Internal Rive Load Error:', e);
+          }
+        });
+
+        riveInstance.current = r;
+      } catch (e) {
+        console.error('[GalaxyRive] Error initializing Rive instance:', e);
+      }
+    };
+
+    loadRiveAnimation();
+
+    const handleResize = () => {
+      if (riveInstance.current) {
+        riveInstance.current.resizeDrawingSurfaceToCanvas();
+      }
+    };
     window.addEventListener('resize', handleResize);
 
     return () => {
+      isActive = false;
       window.removeEventListener('resize', handleResize);
       if (riveInstance.current) {
         riveInstance.current.stop();
