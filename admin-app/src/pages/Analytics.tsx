@@ -25,8 +25,9 @@ const Analytics: React.FC = () => {
   }, []);
 
   // Simple User Agent Parser
-  const parseDevice = (ua: string) => {
-    const lowerUA = ua.toLowerCase();
+  const parseDevice = (ua?: string) => {
+    // Handle cases where ua is undefined (old data)
+    const lowerUA = (ua || '').toLowerCase();
     let os = 'Unknown OS';
     let browser = 'Unknown Browser';
     let icon = <Globe size={16} className="text-gray-400" />;
