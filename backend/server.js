@@ -189,7 +189,7 @@ app.get('/api/analytics/report', requireAdmin, checkDb, async (req, res) => {
     const today = new Date().toISOString().split('T')[0];
 
     // Parallel Data Fetching
-    const [todayStats, totalHitsRes, totalUniqueRes, topProducts, historyRes] = await Promise.all([
+    const [todayStats, totalHitsRes, totalUniqueRes, topProducts, historyRes, recentVisitors] = await Promise.all([
       // A. Today's Views
       Visitor.aggregate([
         { $match: { date: today } },
@@ -210,7 +210,12 @@ app.get('/api/analytics/report', requireAdmin, checkDb, async (req, res) => {
         }},
         { $sort: { _id: -1 } },
         { $limit: 7 }
-      ])
+      ]),
+      // F. Recent Visitors (Detailed Log for IP/Device)
+      Visitor.find()
+        .sort({ lastSeen: -1 }) // Newest first
+        .limit(50) // Limit to last 50 entries
+        .select('ip userAgent hits lastSeen date')
     ]);
 
     res.json({
@@ -221,7 +226,8 @@ app.get('/api/analytics/report', requireAdmin, checkDb, async (req, res) => {
         totalUniqueIps: totalUniqueRes.length || 0
       },
       topProducts: topProducts || [],
-      visitorHistory: historyRes.map(h => ({ date: h._id, hits: h.hits, unique: h.unique })) || []
+      visitorHistory: historyRes.map(h => ({ date: h._id, hits: h.hits, unique: h.unique })) || [],
+      recentVisitors: recentVisitors || []
     });
   } catch (e) {
     console.error(e);

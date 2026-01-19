@@ -66,6 +66,14 @@ const LandingPage: React.FC = () => {
     clientApi.trackProductView(product.id);
   };
 
+  // Helper: Normalize price for filtering/sorting (Handle 50 vs 50000 ambiguity)
+  const getNormalizedPrice = (p: Product) => {
+    if (!p.priceOptions || p.priceOptions.length === 0) return 0;
+    const rawMin = Math.min(...p.priceOptions.map(o => o.price));
+    // If admin entered "50" implying 50k, we treat it as 50000 for filtering
+    return rawMin < 1000 ? rawMin * 1000 : rawMin;
+  };
+
   // --- FILTERING LOGIC ---
   const filteredProducts = products.filter(p => {
     // 1. Category Filter
@@ -73,38 +81,32 @@ const LandingPage: React.FC = () => {
     
     // 2. Search Filter
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+                          p.tags?.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
     
     // 3. Price Range Filter
     let matchesPrice = true;
     if (priceRange !== 'all') {
-      const minPrice = p.priceOptions.length > 0 ? Math.min(...p.priceOptions.map(o => o.price)) : 0;
-      // Price is stored in "K" (thousands), e.g., 60 = 60,000 VND
-      // Wait, based on data.js, price is raw number: 60000. Let's check logic.
-      // Admin form inputs raw number but placeholder says "0" and label says "K".
-      // Let's assume price in DB is full number (e.g. 90000). 
-      // If DB stores 90 (meaning 90k), logic needs adjustment. 
-      // Checking utils/csvHelper: '60000'. Checking data.js: price: 89000. 
-      // So price is FULL NUMBER.
+      const price = getNormalizedPrice(p);
       
       switch (priceRange) {
-        case 'under_50': matchesPrice = minPrice < 50000; break;
-        case '50_200': matchesPrice = minPrice >= 50000 && minPrice <= 200000; break;
-        case '200_500': matchesPrice = minPrice > 200000 && minPrice <= 500000; break;
-        case 'above_500': matchesPrice = minPrice > 500000; break;
+        case 'under_50': matchesPrice = price < 50000; break;
+        case '50_200': matchesPrice = price >= 50000 && price <= 200000; break;
+        case '200_500': matchesPrice = price > 200000 && price <= 500000; break;
+        case 'above_500': matchesPrice = price > 500000; break;
       }
     }
 
     return matchesCategory && matchesSearch && matchesPrice;
   }).sort((a, b) => {
     // 4. Sorting Logic
-    const getPrice = (p: Product) => p.priceOptions.length > 0 ? Math.min(...p.priceOptions.map(o => o.price)) : 0;
+    const priceA = getNormalizedPrice(a);
+    const priceB = getNormalizedPrice(b);
 
     if (sortOption === 'price_asc') {
-      return getPrice(a) - getPrice(b);
+      return priceA - priceB;
     }
     if (sortOption === 'price_desc') {
-      return getPrice(b) - getPrice(a);
+      return priceB - priceA;
     }
     if (sortOption === 'name_asc') {
       return a.name.localeCompare(b.name);

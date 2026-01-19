@@ -10,10 +10,26 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, category, onClick }) => {
-  const minPrice = product.priceOptions.length > 0 
+  const minPrice = product.priceOptions && product.priceOptions.length > 0 
     ? Math.min(...product.priceOptions.map(p => p.price)) 
     : 0;
-  const currency = product.priceOptions.find(p => p.price === minPrice)?.currency || '';
+  const currency = product.priceOptions && product.priceOptions.find(p => p.price === minPrice)?.currency || 'đ';
+
+  // Better Price Formatting:
+  // If currency is 'K' and price >= 1000 (e.g. 89000), show "89K"
+  // If price < 1000, show raw value "60K"
+  const formatPrice = (price: number, curr: string) => {
+    if (price === 0) return 'Liên hệ';
+    if (curr.toUpperCase() === 'K' && price >= 1000) {
+      return new Intl.NumberFormat('vi-VN').format(price / 1000) + 'K';
+    }
+    return new Intl.NumberFormat('vi-VN').format(price) + curr.toUpperCase();
+  };
+
+  const displayPrice = formatPrice(minPrice, currency);
+  
+  // Fake original price for strikethrough (approx +36%)
+  const originalPrice = formatPrice(Math.round(minPrice * 1.36), currency);
 
   return (
     <div 
@@ -94,10 +110,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, category, onClick })
              </div>
              <div className="text-right">
                <span className="text-gray-500 text-[10px] line-through block leading-none mb-0.5">
-                 {new Intl.NumberFormat('vi-VN').format(Math.round(minPrice * 1.36))}{currency.toUpperCase()}
+                 {originalPrice}
                </span>
                <span className={`text-lg font-bold leading-none ${product.isHot ? 'text-orange-400' : 'text-emerald-400'}`}>
-                 {new Intl.NumberFormat('vi-VN').format(minPrice)}{currency.toUpperCase()}
+                 {displayPrice}
                </span>
              </div>
           </div>

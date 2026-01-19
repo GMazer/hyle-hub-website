@@ -1,4 +1,5 @@
 
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   VISITOR = 'VISITOR'
@@ -77,8 +78,18 @@ export interface VisitorLog {
   unique: number;
 }
 
+export interface VisitorDetail {
+  _id: string;
+  ip: string;
+  userAgent: string;
+  hits: number;
+  lastSeen: string;
+  date: string;
+}
+
 export interface AnalyticsReport {
   stats: AnalyticsStats;
   topProducts: Product[];
   visitorHistory: VisitorLog[]; // Last 7 days
+  recentVisitors: VisitorDetail[]; // New field for detailed log
 }

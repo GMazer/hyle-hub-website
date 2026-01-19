@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminApi } from '../services/api';
 import { AnalyticsReport } from '../types';
-import { Users, Eye, BarChart2, Calendar, MousePointer2 } from 'lucide-react';
+import { Users, Eye, BarChart2, Calendar, MousePointer2, Smartphone, Monitor, Globe } from 'lucide-react';
 
 const Analytics: React.FC = () => {
   const [report, setReport] = useState<AnalyticsReport | null>(null);
@@ -24,15 +24,40 @@ const Analytics: React.FC = () => {
     fetchReport();
   }, []);
 
+  // Simple User Agent Parser
+  const parseDevice = (ua: string) => {
+    const lowerUA = ua.toLowerCase();
+    let os = 'Unknown OS';
+    let browser = 'Unknown Browser';
+    let icon = <Globe size={16} className="text-gray-400" />;
+
+    // OS Detection
+    if (lowerUA.includes('iphone')) { os = 'iPhone (iOS)'; icon = <Smartphone size={16} className="text-gray-600 dark:text-gray-300" />; }
+    else if (lowerUA.includes('ipad')) { os = 'iPad (iOS)'; icon = <Smartphone size={16} className="text-gray-600 dark:text-gray-300" />; }
+    else if (lowerUA.includes('android')) { os = 'Android'; icon = <Smartphone size={16} className="text-green-600 dark:text-green-400" />; }
+    else if (lowerUA.includes('windows')) { os = 'Windows PC'; icon = <Monitor size={16} className="text-blue-600 dark:text-blue-400" />; }
+    else if (lowerUA.includes('macintosh') || lowerUA.includes('mac os')) { os = 'Mac OS'; icon = <Monitor size={16} className="text-gray-800 dark:text-gray-200" />; }
+    else if (lowerUA.includes('linux')) { os = 'Linux'; icon = <Monitor size={16} className="text-yellow-600 dark:text-yellow-400" />; }
+
+    // Browser Detection (Basic)
+    if (lowerUA.includes('chrome')) browser = 'Chrome';
+    else if (lowerUA.includes('firefox')) browser = 'Firefox';
+    else if (lowerUA.includes('safari')) browser = 'Safari';
+    else if (lowerUA.includes('edge')) browser = 'Edge';
+    else if (lowerUA.includes('crios')) browser = 'Chrome iOS';
+
+    return { os, browser, icon };
+  };
+
   if (loading) return <div className="p-8 text-center text-gray-500">Đang tải dữ liệu thống kê...</div>;
   if (!report) return <div className="p-8 text-center text-red-500">Không thể tải báo cáo.</div>;
 
-  const { stats, topProducts, visitorHistory } = report;
+  const { stats, topProducts, visitorHistory, recentVisitors } = report;
 
   const maxViews = topProducts.length > 0 ? Math.max(...topProducts.map(p => p.views || 0)) : 1;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-10">
       <div className="flex justify-between items-center">
          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Báo cáo Thống kê</h1>
          <span className="text-sm text-gray-500 dark:text-gray-400">Cập nhật lúc: {new Date().toLocaleTimeString()}</span>
@@ -136,6 +161,56 @@ const Analytics: React.FC = () => {
            </table>
         </div>
 
+      </div>
+
+      {/* --- DETAILED VISITOR LOG --- */}
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-emerald-100 dark:border-gray-800 overflow-hidden">
+         <div className="p-6 border-b border-gray-100 dark:border-gray-800">
+            <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2">
+              <Users size={18} /> Nhật Ký Truy Cập Chi Tiết (50 lượt gần nhất)
+            </h2>
+            <p className="text-xs text-gray-500 mt-1">Hiển thị IP và thông tin thiết bị của khách hàng.</p>
+         </div>
+         <div className="overflow-x-auto">
+           <table className="w-full text-left whitespace-nowrap">
+              <thead className="bg-gray-50 dark:bg-gray-800/50 text-gray-500 text-xs uppercase">
+                 <tr>
+                    <th className="px-6 py-3 font-semibold">Thời gian</th>
+                    <th className="px-6 py-3 font-semibold">Địa chỉ IP</th>
+                    <th className="px-6 py-3 font-semibold">Thiết bị / OS</th>
+                    <th className="px-6 py-3 font-semibold text-right">Số lần xem</th>
+                 </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                 {(!recentVisitors || recentVisitors.length === 0) ? (
+                    <tr><td colSpan={4} className="p-6 text-center text-gray-500">Chưa có dữ liệu chi tiết.</td></tr>
+                 ) : (
+                    recentVisitors.map((visitor, idx) => {
+                       const { os, browser, icon } = parseDevice(visitor.userAgent);
+                       const timeString = new Date(visitor.lastSeen).toLocaleString('vi-VN');
+                       return (
+                         <tr key={visitor._id || idx} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-sm text-gray-700 dark:text-gray-300">
+                            <td className="px-6 py-4 text-gray-500 text-xs">{timeString}</td>
+                            <td className="px-6 py-4 font-mono text-emerald-600 dark:text-emerald-400">{visitor.ip}</td>
+                            <td className="px-6 py-4">
+                               <div className="flex items-center gap-2">
+                                  {icon}
+                                  <div>
+                                     <div className="font-medium">{os}</div>
+                                     <div className="text-xs text-gray-400">{browser}</div>
+                                  </div>
+                               </div>
+                               {/* Hover to see full UA if needed */}
+                               <div className="hidden group-hover:block absolute bg-black text-white p-2 rounded text-xs z-10">{visitor.userAgent}</div>
+                            </td>
+                            <td className="px-6 py-4 text-right">{visitor.hits}</td>
+                         </tr>
+                       );
+                    })
+                 )}
+              </tbody>
+           </table>
+         </div>
       </div>
     </div>
   );
