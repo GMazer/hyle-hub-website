@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Product, Category } from '../../../../../packages/shared/types';
-import { Flame, Zap, Star, Eye, ShoppingCart } from 'lucide-react';
+import { Flame, Zap, Star, Eye, ShoppingCart, ImageOff } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +10,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, category, onClick }) => {
+  const [imgError, setImgError] = useState(false);
+
   const minPrice = product.priceOptions && product.priceOptions.length > 0 
     ? Math.min(...product.priceOptions.map(p => p.price)) 
     : 0;
@@ -56,18 +58,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, category, onClick })
       )}
 
       {/* Image Section - Full Display No Padding */}
-      <div className="relative aspect-[4/3] w-full bg-gray-800">
-         <img 
-          src={product.thumbnailUrl} 
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+      <div className="relative aspect-[4/3] w-full bg-gray-800 flex items-center justify-center overflow-hidden">
+         {!imgError ? (
+           <img 
+            src={product.thumbnailUrl} 
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            // Important: Bypass referrer checks for hotlinked images
+            referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
+          />
+         ) : (
+           <div className="flex flex-col items-center justify-center text-gray-600 gap-2 p-4 text-center">
+             <ImageOff size={32} />
+             <span className="text-[10px] uppercase font-bold text-gray-500 line-clamp-2">{product.name}</span>
+           </div>
+         )}
         
         {/* Category Icon Overlay - Top Left (Offset slightly if Hot) */}
         {category?.iconUrl ? (
           <div className={`absolute left-3 z-20 w-5 h-5 drop-shadow-md filter brightness-110 ${product.isHot ? 'top-10' : 'top-3'}`}>
-            <img src={category.iconUrl} alt="cat-icon" className="w-full h-full object-contain" />
+            <img src={category.iconUrl} alt="cat-icon" className="w-full h-full object-contain" referrerPolicy="no-referrer" />
           </div>
         ) : (
           <div className={`absolute left-3 z-20 text-yellow-500 drop-shadow-md ${product.isHot ? 'top-10' : 'top-3'}`}>
