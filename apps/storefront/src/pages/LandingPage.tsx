@@ -165,15 +165,20 @@ const LandingPage: React.FC = () => {
              
              {/* 1. Teal Planet (Top Left) */}
              <div className="absolute top-[0%] left-[-5%] md:left-[5%] md:top-[0%] animate-float pointer-events-none">
+                {/* Atmospheric Glow */}
+                <div className="absolute inset-0 bg-teal-500/30 blur-[50px] rounded-full animate-pulse-slow"></div>
+
                 <div 
-                  className="w-20 h-20 md:w-40 md:h-40 rounded-full relative overflow-hidden"
+                  className="w-20 h-20 md:w-40 md:h-40 rounded-full relative overflow-hidden transition-all duration-1000"
                   style={{
                     background: 'radial-gradient(circle at 30% 30%, #5eead4 0%, #0f766e 40%, #134e4a 100%)',
-                    boxShadow: 'inset -10px -10px 30px rgba(0,0,0,0.8), 0 0 40px rgba(45,212,191,0.2)'
+                    boxShadow: 'inset -10px -10px 30px rgba(0,0,0,0.8), 0 0 60px rgba(45,212,191,0.4)'
                   }}
                 >
                    <div className="absolute inset-0 rounded-full border-[1px] border-teal-200/20 mix-blend-overlay"></div>
                    <div className="absolute top-6 left-6 w-12 h-8 bg-white/10 blur-xl rounded-full transform -rotate-45"></div>
+                   {/* Fake cloud/movement */}
+                   <div className="absolute -inset-4 bg-gradient-to-tr from-transparent via-teal-300/10 to-transparent blur-md rotate-45 animate-pulse-slow"></div>
                 </div>
                 <FourPointStar className="w-6 h-6 top-0 right-[-10px] text-teal-100" delay="0s" />
              </div>
@@ -181,40 +186,52 @@ const LandingPage: React.FC = () => {
              {/* 2. Purple Ringed Planet (Top Right) */}
              <div className="absolute top-[-5%] right-[-10%] md:right-[2%] md:top-[-5%] animate-float-delayed pointer-events-none z-0">
                 <div className="relative w-40 h-40 md:w-80 md:h-80">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-[6px] md:border-[10px] border-purple-400/10 rounded-[50%] rotate-[-25deg]"></div>
+                    {/* Rotating Glow Ring */}
+                    <div className="absolute inset-0 rounded-full bg-purple-600/20 blur-[60px] animate-pulse-slow"></div>
+
+                    {/* Rings - Add slow rotation or pulse */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-[6px] md:border-[10px] border-purple-400/20 rounded-[50%] rotate-[-25deg] shadow-[0_0_20px_rgba(168,85,247,0.2)]"></div>
                     
+                    {/* Planet Body */}
                     <div 
                       className="absolute inset-4 rounded-full overflow-hidden z-10"
                       style={{
                         background: 'linear-gradient(135deg, #a855f7 0%, #6b21a8 50%, #3b0764 100%)',
-                        boxShadow: 'inset -20px -20px 60px rgba(0,0,0,0.9), 0 0 70px rgba(168,85,247,0.3)'
+                        boxShadow: 'inset -20px -20px 60px rgba(0,0,0,0.9), 0 0 80px rgba(168,85,247,0.5)'
                       }}
                     >
                        <div className="absolute top-[20%] left-[-10%] w-[120%] h-[10%] bg-purple-400/10 blur-sm rotate-[-15deg]"></div>
                        <div className="absolute top-[40%] left-[-10%] w-[120%] h-[5%] bg-indigo-500/20 blur-sm rotate-[-15deg]"></div>
                        <div className="absolute top-[60%] left-[-10%] w-[120%] h-[15%] bg-purple-900/30 blur-md rotate-[-15deg]"></div>
                        <div className="absolute inset-0 rounded-full ring-1 ring-white/20"></div>
+                       {/* Subtle internal shift */}
+                       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-950/50 mix-blend-multiply"></div>
                     </div>
 
-                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-t-[6px] md:border-t-[10px] border-l-[2px] border-r-[2px] border-b-transparent border-purple-300/30 rounded-[50%] rotate-[-25deg] z-20 opacity-80"></div>
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[30%] border-t-[6px] md:border-t-[10px] border-l-[2px] border-r-[2px] border-b-transparent border-purple-300/40 rounded-[50%] rotate-[-25deg] z-20 opacity-90 shadow-[0_0_15px_rgba(216,180,254,0.3)]"></div>
                 </div>
              </div>
 
              {/* 3. Orange Planet (Bottom Left) */}
              <div className="absolute bottom-[-15%] left-[-15%] md:left-[5%] md:bottom-[-10%] animate-float pointer-events-none z-10">
+                <div className="absolute inset-0 bg-orange-600/30 blur-[50px] rounded-full animate-pulse-slow"></div>
+
                 <div 
                   className="w-32 h-32 md:w-56 md:h-56 rounded-full relative overflow-hidden"
                   style={{
                     background: 'radial-gradient(circle at 40% 40%, #fb923c 0%, #c2410c 50%, #7c2d12 100%)',
-                    boxShadow: 'inset -15px -15px 50px rgba(0,0,0,0.8), 0 0 50px rgba(249,115,22,0.25)'
+                    boxShadow: 'inset -15px -15px 50px rgba(0,0,0,0.8), 0 0 70px rgba(249,115,22,0.4)'
                   }}
                 >
                    <div className="absolute top-[25%] left-[20%] w-14 h-10 bg-[#9a3412] rounded-full opacity-60 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6),1px_1px_0_rgba(255,255,255,0.1)] rotate-[-10deg]"></div>
                    <div className="absolute bottom-[30%] right-[25%] w-8 h-8 bg-[#7c2d12] rounded-full opacity-70 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.7)]"></div>
                    <div className="absolute top-[60%] left-[15%] w-4 h-4 bg-[#7c2d12] rounded-full opacity-50 shadow-inner"></div>
                    <div className="absolute inset-0 bg-black/10 mix-blend-overlay"></div>
+                   
+                   {/* Magma flow effect (subtle) */}
+                   <div className="absolute inset-0 bg-gradient-to-t from-orange-900/0 via-orange-500/10 to-transparent animate-pulse-slow"></div>
                 </div>
-                 <FourPointStar className="w-8 h-8 top-[-25px] right-[25px] text-orange-100 drop-shadow-[0_0_10px_rgba(255,165,0,0.8)]" delay="1s" />
+                 <FourPointStar className="w-8 h-8 top-[-25px] right-[25px] text-orange-100 drop-shadow-[0_0_15px_rgba(255,165,0,1)]" delay="1s" />
              </div>
 
              {/* 4. Extra Sparkles */}
