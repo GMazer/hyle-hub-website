@@ -10,6 +10,7 @@ import HeroSection from '../features/landing/HeroSection';
 import ProductFilters from '../features/landing/ProductFilters';
 import ProductCard from '../features/landing/ProductCard';
 import Footer from '../features/landing/Footer';
+import { LandingSkeleton } from '../features/landing/LandingSkeleton';
 
 const LandingPage: React.FC = () => {
   const [config, setConfig] = useState<SiteConfig | null>(null);
@@ -46,6 +47,8 @@ const LandingPage: React.FC = () => {
       } catch (e) {
         console.error("Failed to load data", e);
       } finally {
+        // Add a small artificial delay to show off the cool skeleton if data loads too fast (Optional)
+        // setTimeout(() => setLoading(false), 500); 
         setLoading(false);
       }
     };
@@ -70,7 +73,9 @@ const LandingPage: React.FC = () => {
     return matchesCategory && matchesSearch;
   });
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-emerald-400 font-medium bg-[#020617]">Đang tải dữ liệu...</div>;
+  if (loading) return <LandingSkeleton />;
+  
+  // Fallback for error state
   if (!config) return <div className="min-h-screen flex items-center justify-center text-gray-200 bg-[#020617]">Không thể tải cấu hình (Hãy kiểm tra Backend)</div>;
 
   return (
