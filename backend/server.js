@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const crypto = require('crypto'); // Built-in Node.js crypto for secure comparison
 const { INITIAL_CONFIG, INITIAL_CATEGORIES, INITIAL_SOCIALS } = require('./data');
 
 const app = express();
@@ -12,10 +13,25 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hylehu
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 // Middleware
-// Trust proxy is required to get real IP on Render/Vercel/Heroku
+// Trust proxy is required to get real IP on Render/Vercel/Heroku for Rate Limiting
 app.set('trust proxy', true); 
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increase limit for bulk upload
+
+// --- SECURITY: RATE LIMITER (In-Memory) ---
+// In production with multiple instances, use Redis. For single node, Map is fine.
+const loginAttempts = new Map(); // Key: IP, Value: { count, lockUntil }
+
+const cleanUpRateLimit = () => {
+  const now = Date.now();
+  for (const [ip, data] of loginAttempts.entries()) {
+    if (data.lockUntil < now && data.count === 0) {
+      loginAttempts.delete(ip);
+    }
+  }
+};
+// Clean up every hour
+setInterval(cleanUpRateLimit, 3600000);
 
 // --- LOGGER MIDDLEWARE ---
 app.use((req, res, next) => {
@@ -122,10 +138,20 @@ const VisitorSchema = new mongoose.Schema({
 VisitorSchema.index({ ip: 1, date: 1, userAgent: 1 }, { unique: true });
 const Visitor = mongoose.model('Visitor', VisitorSchema);
 
-// --- AUTH MIDDLEWARE ---
+// --- AUTH MIDDLEWARE (SECURE) ---
 const requireAdmin = (req, res, next) => {
   const authHeader = req.headers['x-admin-password'];
-  if (authHeader === ADMIN_PASSWORD) {
+  
+  if (!authHeader) {
+    return res.status(403).json({ error: 'Unauthorized: Missing Password' });
+  }
+
+  // Use timingSafeEqual for API requests too
+  // 1. Hash both to ensure equal length buffers
+  const inputHash = crypto.createHash('sha256').update(String(authHeader)).digest();
+  const targetHash = crypto.createHash('sha256').update(String(ADMIN_PASSWORD)).digest();
+
+  if (crypto.timingSafeEqual(inputHash, targetHash)) {
     next();
   } else {
     res.status(403).json({ error: 'Unauthorized: Incorrect Admin Password' });
@@ -385,14 +411,54 @@ app.delete('/api/products/:id', requireAdmin, checkDb, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// 5. Auth Check
+// 5. Auth Check (SECURED)
 app.post('/api/auth/login', (req, res) => {
-  // Simple check doesn't need DB
+  const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+  const now = Date.now();
+  
+  // A. Rate Limiting Check
+  const attemptData = loginAttempts.get(ip) || { count: 0, lockUntil: 0 };
+  
+  if (attemptData.lockUntil > now) {
+    const waitSeconds = Math.ceil((attemptData.lockUntil - now) / 1000);
+    return res.status(429).json({ 
+      success: false, 
+      message: `Quá nhiều lần thử sai. Vui lòng thử lại sau ${waitSeconds} giây.` 
+    });
+  }
+
+  // B. Input Sanitization
   const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
+  if (typeof password !== 'string') {
+    return res.status(400).json({ success: false, message: 'Dữ liệu không hợp lệ.' });
+  }
+
+  // C. Timing-Safe Comparison
+  // Hash both inputs using SHA-256 to ensure equal length buffers
+  const inputHash = crypto.createHash('sha256').update(password).digest();
+  const targetHash = crypto.createHash('sha256').update(ADMIN_PASSWORD).digest();
+
+  const isMatch = crypto.timingSafeEqual(inputHash, targetHash);
+
+  if (isMatch) {
+    // Success: Reset rate limit
+    loginAttempts.delete(ip);
     res.json({ success: true });
   } else {
-    res.status(401).json({ success: false, message: 'Sai mật khẩu' });
+    // Failure: Increment count
+    attemptData.count += 1;
+    
+    // Lock logic: 5 attempts -> 15 minutes lock
+    if (attemptData.count >= 5) {
+      attemptData.lockUntil = now + (15 * 60 * 1000); // 15 mins
+    }
+    
+    loginAttempts.set(ip, attemptData);
+    
+    res.status(401).json({ 
+      success: false, 
+      message: `Sai mật khẩu. (Còn lại ${5 - attemptData.count} lần thử)` 
+    });
   }
 });
 

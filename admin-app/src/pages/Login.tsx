@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminApi, API_URL } from '../services/api';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ShieldAlert } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -15,13 +16,22 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const isValid = await adminApi.login(password);
-      if (isValid) {
+      // Direct fetch here to handle specific status codes (429, 401) better than the service wrapper
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('adminPassword', password);
         navigate('/admin');
       } else {
-        setError('Mật khẩu không đúng.');
+        // Handle specific error messages from backend (Rate limit or Wrong pass)
+        setError(data.message || 'Đăng nhập thất bại.');
       }
     } catch (e) {
       console.error(e);
@@ -49,16 +59,19 @@ const Login: React.FC = () => {
           </div>
           
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-3 text-sm text-red-600 dark:text-red-400">
-               <p className="font-bold">{error}</p>
-               <p className="mt-1 text-xs opacity-80 break-all">API: {API_URL}</p>
+            <div className={`border rounded p-3 text-sm flex gap-2 ${error.includes('Quá nhiều') ? 'bg-red-100 border-red-300 text-red-800' : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'}`}>
+               <ShieldAlert size={18} className="shrink-0" />
+               <div>
+                 <p className="font-bold">{error}</p>
+                 {error.includes('API') && <p className="mt-1 text-xs opacity-80 break-all">API: {API_URL}</p>}
+               </div>
             </div>
           )}
 
           <button 
             type="submit" 
-            disabled={loading}
-            className="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50"
+            disabled={loading || error.includes('Quá nhiều')}
+            className="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Đang kết nối...' : 'Đăng nhập'}
           </button>
@@ -68,10 +81,7 @@ const Login: React.FC = () => {
            <div className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded">
               <AlertTriangle size={16} className="shrink-0 text-amber-500" />
               <div>
-                <strong>Lưu ý cấu hình:</strong><br/>
-                Nếu lỗi kết nối, hãy vào <a href="https://app.netlify.com" target="_blank" className="underline hover:text-emerald-500">Netlify</a> &gt; Site settings &gt; Environment variables.<br/>
-                Thêm key: <code>VITE_API_URL</code><br/>
-                Value: Link backend Render của bạn.
+                <strong>Bảo mật:</strong> Hệ thống sẽ tự động khóa IP trong 15 phút nếu nhập sai quá 5 lần.
               </div>
            </div>
         </div>
