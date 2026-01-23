@@ -13,6 +13,7 @@ import FloatingChat from '../features/landing/FloatingChat';
 import ProductGrid from '../features/landing/ProductGrid';
 import { useStoreData } from '../hooks/useStoreData';
 import { useProductFilter } from '../hooks/useProductFilter';
+import MetaHandler from '../components/seo/MetaHandler';
 
 const LandingPage: React.FC = () => {
   // Data Fetching Hook
@@ -52,6 +53,9 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#020617] flex flex-col text-gray-100 font-sans selection:bg-emerald-500/30 relative overflow-x-hidden">
       
+      {/* Dynamic SEO Meta Tags */}
+      <MetaHandler config={config} />
+
       <SpaceBackground />
       
       <div className="relative z-10 flex flex-col min-h-screen">

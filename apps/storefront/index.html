@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark">
     <title>HyleHub Store</title>
+
+    <!-- SEO & Open Graph Meta Tags -->
+    <meta name="description" content="Cung cấp các loại tài khoản Premium, AI Pro, Netflix, Youtube giá rẻ, bảo hành trọn đời." />
+    <meta property="og:title" content="HyleHub Store - Tài khoản Premium Giá Rẻ" />
+    <meta property="og:description" content="Cung cấp các loại tài khoản Premium, AI Pro, Netflix, Youtube giá rẻ, bảo hành trọn đời." />
+    <meta property="og:image" content="/public/logohylehub.svg" />
+    <meta property="og:url" content="https://hylehub.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="HyleHub Store" />
+
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -26,6 +36,13 @@
             },
             animation: {
               blob: "blob 7s infinite",
+              'spin-slow': 'spin 15s linear infinite',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+              'float-delayed': 'float 6s ease-in-out 3s infinite',
+              'twinkle': 'twinkle 3s ease-in-out infinite',
+              'shooting-star': 'shooting-star 3s ease-in-out infinite',
+              'burn': 'burn 1.5s infinite alternate', // New burning animation
             },
             keyframes: {
               blob: {
@@ -33,13 +50,33 @@
                 "33%": { transform: "translate(30px, -50px) scale(1.1)" },
                 "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
                 "100%": { transform: "translate(0px, 0px) scale(1)" }
+              },
+              float: {
+                "0%, 100%": { transform: "translateY(0)" },
+                "50%": { transform: "translateY(-20px)" }
+              },
+              twinkle: {
+                "0%, 100%": { opacity: "1", transform: "scale(1)" },
+                "50%": { opacity: "0.3", transform: "scale(0.7)" }
+              },
+              'shooting-star': {
+                "0%": { transform: "translateX(-100%) translateY(-100%) rotate(45deg)", opacity: "1" },
+                "20%": { transform: "translateX(200%) translateY(200%) rotate(45deg)", opacity: "0" },
+                "100%": { transform: "translateX(200%) translateY(200%) rotate(45deg)", opacity: "0" }
+              },
+              'burn': {
+                "0%": { boxShadow: "0 0 10px rgba(239, 68, 68, 0.5), 0 0 20px rgba(245, 158, 11, 0.3)" },
+                "100%": { boxShadow: "0 0 20px rgba(239, 68, 68, 0.8), 0 0 40px rgba(245, 158, 11, 0.6)" }
               }
+            },
+            backgroundImage: {
+              'grid-white': "linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)",
             }
           }
         }
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -148,13 +185,17 @@
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
     "path": "https://esm.sh/path@^0.12.7",
     "react-markdown": "https://esm.sh/react-markdown@9.0.1",
-    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0"
+    "remark-gfm": "https://esm.sh/remark-gfm@4.0.0",
+    "url": "https://esm.sh/url@^0.11.4",
+    "@rive-app/react-canvas": "https://esm.sh/@rive-app/react-canvas@^4.26.1",
+    "@rive-app/canvas": "https://esm.sh/@rive-app/canvas@^2.34.1",
+    "ogl": "https://esm.sh/ogl@1.0.11"
   }
 }
 </script>
 </head>
   <body class="bg-gray-950 text-gray-100 transition-colors duration-200 selection:bg-emerald-900">
     <div id="root"></div>
-    <script type="module" src="./src/main.tsx"></script>
+    <script type="module" src="./apps/storefront/src/main.tsx"></script>
   </body>
 </html>
