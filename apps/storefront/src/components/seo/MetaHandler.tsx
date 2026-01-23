@@ -42,8 +42,9 @@ const MetaHandler: React.FC<MetaHandlerProps> = ({ config }) => {
     updateMeta('meta[property="og:url"]', 'content', window.location.href);
 
     // 4. Update Image
-    // Priority: Banner URL -> Logo URL -> Default
-    const image = config.bannerUrl || config.logoUrl || '/public/logohylehub.svg';
+    // Priority: Banner URL -> Logo URL -> Default (logo.png)
+    // IMPORTANT: Use full URL for reliability if possible, or relative path which resolves to domain
+    const image = config.bannerUrl || config.logoUrl || '/public/logo.png';
     updateMeta('meta[property="og:image"]', 'content', image);
 
   }, [config]);
