@@ -2,14 +2,16 @@
 <html lang="vi" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/public/logohylehub.svg" />
+    <!-- Vite serves files in public/ at root /, so we remove /public prefix -->
+    <link rel="icon" type="image/svg+xml" href="/logohylehub.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark">
     <title>HyleHub Store - Tài khoản Premium Giá Rẻ</title>
 
     <!-- 
       CẤU HÌNH SEO & SOCIAL SHARE (Zalo/Facebook)
-      Đã cập nhật: Sử dụng logo.png để tương thích tốt nhất.
+      FIX LỖI: File trong thư mục 'public' sẽ được truy cập tại root domain.
+      Ví dụ: public/logo.png -> https://hylehub.io.vn/logo.png
     -->
     <meta name="description" content="Cung cấp các loại tài khoản Premium, AI Pro, Netflix, Youtube giá rẻ, bảo hành trọn đời, hỗ trợ 24/7." />
     
@@ -20,9 +22,9 @@
     <meta property="og:description" content="Nâng cấp Youtube Premium, ChatGPT Plus, Canva Pro, Netflix chính chủ giá rẻ. Bảo hành trọn đời." />
     <meta property="og:site_name" content="HyleHub Store" />
     
-    <!-- Ảnh đại diện khi chia sẻ (Sử dụng PNG thay vì SVG) -->
-    <meta property="og:image" content="https://hylehub.io.vn/public/logo.png" />
-    <meta property="og:image:secure_url" content="https://hylehub.io.vn/public/logo.png" />
+    <!-- ĐÃ SỬA ĐƯỜNG DẪN: Bỏ /public -->
+    <meta property="og:image" content="https://hylehub.io.vn/logo.png" />
+    <meta property="og:image:secure_url" content="https://hylehub.io.vn/logo.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:alt" content="HyleHub Store Logo" />
     <meta property="og:image:width" content="1200" />
@@ -33,7 +35,7 @@
     <meta name="twitter:url" content="https://hylehub.io.vn/" />
     <meta name="twitter:title" content="HyleHub Store - Tài khoản Premium Giá Rẻ" />
     <meta name="twitter:description" content="Nâng cấp Youtube Premium, ChatGPT Plus, Canva Pro, Netflix chính chủ giá rẻ." />
-    <meta name="twitter:image" content="https://hylehub.io.vn/public/logo.png" />
+    <meta name="twitter:image" content="https://hylehub.io.vn/logo.png" />
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>

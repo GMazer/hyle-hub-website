@@ -43,8 +43,8 @@ const MetaHandler: React.FC<MetaHandlerProps> = ({ config }) => {
 
     // 4. Update Image
     // Priority: Banner URL -> Logo URL -> Default (logo.png)
-    // IMPORTANT: Use full URL for reliability if possible, or relative path which resolves to domain
-    const image = config.bannerUrl || config.logoUrl || '/public/logo.png';
+    // Note: Files in /public are served at root /, so we use /logo.png not /public/logo.png
+    const image = config.bannerUrl || config.logoUrl || '/logo.png';
     updateMeta('meta[property="og:image"]', 'content', image);
 
   }, [config]);
