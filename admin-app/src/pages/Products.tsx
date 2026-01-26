@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { adminApi } from '../services/api';
 import { Product, Category } from '../types';
-import { Plus, Edit, Trash2, Search, Upload, Download, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Upload, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import ProductForm from '../components/ProductForm';
-import { generateSampleCSV, parseProductCSV } from '../utils/csvHelper';
+import { generateSampleCSV, parseProductCSV, exportProductsToCSV } from '../utils/csvHelper';
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -48,6 +49,16 @@ const Products: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleExport = () => {
+      // Export filtered products if search is active, otherwise all
+      const productsToExport = filteredProducts.length > 0 ? filteredProducts : products;
+      if (productsToExport.length === 0) {
+          alert("Không có sản phẩm nào để xuất.");
+          return;
+      }
+      exportProductsToCSV(productsToExport);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,18 +118,27 @@ const Products: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+            <button 
+              onClick={handleExport}
+              className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-2 rounded hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors text-sm font-medium border border-green-200 dark:border-green-800"
+              title="Xuất ra file Excel"
+            >
+              <FileSpreadsheet size={16} /> Xuất Excel
+            </button>
+
             <button 
               onClick={handleDownloadSample}
               className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium border border-gray-200 dark:border-gray-700"
-              title="Tải file mẫu CSV"
+              title="Tải file mẫu CSV để nhập liệu"
             >
-              <Download size={16} /> Mẫu
+              <Download size={16} /> Mẫu nhập
             </button>
             
             <button 
               onClick={() => fileInputRef.current?.click()}
               className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-2 rounded hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors text-sm font-medium border border-blue-100 dark:border-blue-800"
+              title="Nhập sản phẩm từ file CSV"
             >
               <Upload size={16} /> Nhập CSV
             </button>
@@ -130,7 +150,7 @@ const Products: React.FC = () => {
               hidden 
             />
 
-            <button onClick={() => setEditingProduct(null)} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 transition-colors text-sm font-medium">
+            <button onClick={() => setEditingProduct(null)} className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 transition-colors text-sm font-medium whitespace-nowrap">
               <Plus size={18} /> Thêm mới
             </button>
           </div>

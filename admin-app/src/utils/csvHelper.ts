@@ -1,3 +1,4 @@
+
 import { Product, PriceOption } from '../types';
 
 export const generateSampleCSV = () => {
@@ -61,4 +62,56 @@ export const parseProductCSV = (csvText: string): Partial<Product>[] => {
   }
 
   return products;
+};
+
+export const exportProductsToCSV = (products: Product[]) => {
+  // 1. Define Headers (Vietnamese)
+  const headers = ['Tên sản phẩm', 'Mô tả ngắn', 'Bảng giá chi tiết', 'Lưu ý', 'Trạng thái', 'Danh mục ID'];
+
+  // 2. Helper to format CSV cell (escape quotes, wrap in quotes)
+  const escapeCsvCell = (text: string | number | undefined | null) => {
+    if (text === undefined || text === null) return '';
+    const stringValue = String(text);
+    // If contains quote, comma or newline, wrap in quotes and escape internal quotes
+    if (stringValue.includes('"') || stringValue.includes(',') || stringValue.includes('\n')) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+    return stringValue;
+  };
+
+  // 3. Map products to rows
+  const rows = products.map(p => {
+    // Format Pricing: "Tên gói - Giá - Thời hạn (Mô tả)" joined by newlines
+    const pricingText = p.priceOptions?.map(opt => {
+      const desc = opt.description ? ` (${opt.description})` : '';
+      return `- ${opt.name}: ${new Intl.NumberFormat('vi-VN').format(opt.price)}K / ${opt.unit}${desc}`;
+    }).join('\n');
+
+    return [
+      escapeCsvCell(p.name),
+      escapeCsvCell(p.shortDescription),
+      escapeCsvCell(pricingText),
+      escapeCsvCell(p.notes),
+      escapeCsvCell(p.status === 'published' ? 'Đang hiện' : 'Ẩn/Nháp'),
+      escapeCsvCell(p.categoryId)
+    ].join(',');
+  });
+
+  // 4. Combine with BOM for UTF-8 Excel support
+  // \uFEFF is the Byte Order Mark, essential for Excel to read Vietnamese correctly
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+
+  // 5. Trigger Download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  
+  const dateStr = new Date().toISOString().split('T')[0];
+  link.setAttribute("href", url);
+  link.setAttribute("download", `Danh_sach_san_pham_HyleHub_${dateStr}.csv`);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
